@@ -18,6 +18,32 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>Unhandled</string>
+				<string>Exception:</string>
+				<string>PlatformException(google_sign_in</string>
+				<string>Your</string>
+				<string>app</string>
+				<string>is</string>
+				<string>missing</string>
+				<string>support</string>
+				<string>for</string>
+				<string>the</string>
+				<string>following</string>
+				<string>URL</string>
+				<string>schemes:</string>
+				<string>com.googleusercontent.apps.678254101187-81d5f9no71b809pffpfdp4jbu2u4mrsa</string>
+				<string>NSInvalidArgumentException</string>
+				<string>null)</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>

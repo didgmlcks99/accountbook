@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "678254101187",
+    "project_id": "accountbook-7acb7",
+    "storage_bucket": "accountbook-7acb7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:678254101187:android:16b92ce7f6a4460fd39876",
+        "android_client_info": {
+          "package_name": "com.example.accountbook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "678254101187-c8933h0se5gbvo6q495jfsrevdfo2psf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_oLhITCk9Sqgey7pFuKcdQUwUADDiBxI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "678254101187-c8933h0se5gbvo6q495jfsrevdfo2psf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "678254101187-81d5f9no71b809pffpfdp4jbu2u4mrsa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.accountbook"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

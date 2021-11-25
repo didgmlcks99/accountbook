@@ -110,13 +110,13 @@ class ApplicationState extends ChangeNotifier {
     // Once signed in, return the UserCredential
     await FirebaseAuth.instance.signInWithCredential(credential);
 
-    // Navigator.pop(context);
-
     _loginState = ApplicationLoginState.loggedIn;
 
     print(_loginState.toString());
 
     notifyListeners();
+
+    Navigator.pop(context);
   }
 
   void signOut() {

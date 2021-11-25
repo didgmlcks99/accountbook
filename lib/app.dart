@@ -30,9 +30,9 @@ class _AccountBookAppState extends State<AccountBookApp>{
             title: 'AccountBookApp',
             theme: ThemeData(
                 brightness: Brightness.light,
-                appBarTheme: AppBarTheme(
-                  color: Colors.grey[500],
-                )
+                // appBarTheme: AppBarTheme(
+                //   color: Colors.grey[500],
+                // )
             ),
             home: const HomePage(),
             initialRoute: '/login',

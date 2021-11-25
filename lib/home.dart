@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => SearchPage()
+                    builder: (context) => const SearchPage()
                 ),
               );
             },
@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             FloatingActionButton(
-              child: Icon(Icons.add),
+              child: const Icon(Icons.add),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -62,7 +62,8 @@ class _HomePageState extends State<HomePage> {
                       builder: (context) => AddPage()
                   ),
                 );
-              },),
+              },
+            ),
           ],
         ),
 
@@ -74,7 +75,7 @@ class _HomePageState extends State<HomePage> {
             _selectedIndex = index;
           });
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.layers_outlined),
               label: '계좌별 관리'

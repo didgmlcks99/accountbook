@@ -79,16 +79,6 @@ class ApplicationState extends ChangeNotifier {
   String? _uid;
   String? get uid => _uid;
 
-  int? _newBudget;
-  int? get newBudget => null;
-
-  Future<bool> checkExistLike(String docId, String userId) {
-    return FirebaseFirestore.instance.collection('products')
-        .doc(docId)
-        .collection('likedUsers')
-        .snapshots().contains(userId);
-  }
-
   void startLoginFlow() {
     _loginState = ApplicationLoginState.register;
     notifyListeners();
@@ -168,11 +158,6 @@ class ApplicationState extends ChangeNotifier {
 
     print("budget added to database");
 
-    if(catName != "total_budget"){
-      updateTotalBudget(budget);
-      print("updated total_budget");
-    }
-
     return FirebaseFirestore.instance.collection('users')
         .doc(uid)
         .collection('budgets')
@@ -185,39 +170,39 @@ class ApplicationState extends ChangeNotifier {
 
   }
 
-  Future<void> updateTotalBudget(int budget) async {
-    if (_loginState != ApplicationLoginState.loggedIn) {
-      throw Exception('Must be logged in');
-    }
-
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('budgets')
-        .doc('total_budget')
-        .get()
-        .then((DocumentSnapshot documentSnapshot){
-          _newBudget = int.parse(documentSnapshot.get('budget')) + budget;
-          // updateBudget = Budget(
-          //   budget: documentSnapshot.get('budget') + budget,
-          //   category: documentSnapshot.get('category').toString(),
-          //   used: documentSnapshot.get('used'),
-          // );
-    });
-
-
-    Map<String, dynamic> data = <String, dynamic>{
-      'budget': newBudget,
-    };
-
-    return FirebaseFirestore.instance.collection('users')
-        .doc(uid)
-        .collection('budgets')
-        .doc('total_budget')
-        .update(data)
-        .whenComplete(() => print("total_budget updated completed"))
-        .catchError((e) => print(e));
-  }
+  // Future<void> updateTotalBudget(int budget) async {
+  //   if (_loginState != ApplicationLoginState.loggedIn) {
+  //     throw Exception('Must be logged in');
+  //   }
+  //
+  //   await FirebaseFirestore.instance
+  //       .collection('users')
+  //       .doc(uid)
+  //       .collection('budgets')
+  //       .doc('total_budget')
+  //       .get()
+  //       .then((DocumentSnapshot documentSnapshot){
+  //         _newBudget = int.parse(documentSnapshot.get('budget')) + budget;
+  //         // updateBudget = Budget(
+  //         //   budget: documentSnapshot.get('budget') + budget,
+  //         //   category: documentSnapshot.get('category').toString(),
+  //         //   used: documentSnapshot.get('used'),
+  //         // );
+  //   });
+  //
+  //
+  //   Map<String, dynamic> data = <String, dynamic>{
+  //     'budget': newBudget,
+  //   };
+  //
+  //   return FirebaseFirestore.instance.collection('users')
+  //       .doc(uid)
+  //       .collection('budgets')
+  //       .doc('total_budget')
+  //       .update(data)
+  //       .whenComplete(() => print("total_budget updated completed"))
+  //       .catchError((e) => print(e));
+  // }
 
   // 계정 새로 추가 했을 때
   Future<void> addAccount(String accName, String bankName, String accNum) async {
@@ -258,5 +243,4 @@ class ApplicationState extends ChangeNotifier {
       'price': price,
     });
   }
-
 }

@@ -149,6 +149,7 @@ class ApplicationState extends ChangeNotifier {
   }
 
   // 새로 예산 정보 추가 했을 때
+  //아번 달에 해당 카테고리에 지출한거 있는지 확인하고 used 설정 (total used도 설정)
   Future<void> addBudget(String catName, int budget) async {
     print(_loginState.toString());
 
@@ -157,6 +158,11 @@ class ApplicationState extends ChangeNotifier {
     }
 
     print("budget added to database");
+
+    if(catName != "total_budget"){
+      updateTotalBudget(budget);
+      print("updated total_budget");
+    }
 
     return FirebaseFirestore.instance.collection('users')
         .doc(uid)
@@ -170,39 +176,28 @@ class ApplicationState extends ChangeNotifier {
 
   }
 
-  // Future<void> updateTotalBudget(int budget) async {
-  //   if (_loginState != ApplicationLoginState.loggedIn) {
-  //     throw Exception('Must be logged in');
-  //   }
-  //
-  //   await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(uid)
-  //       .collection('budgets')
-  //       .doc('total_budget')
-  //       .get()
-  //       .then((DocumentSnapshot documentSnapshot){
-  //         _newBudget = int.parse(documentSnapshot.get('budget')) + budget;
-  //         // updateBudget = Budget(
-  //         //   budget: documentSnapshot.get('budget') + budget,
-  //         //   category: documentSnapshot.get('category').toString(),
-  //         //   used: documentSnapshot.get('used'),
-  //         // );
-  //   });
-  //
-  //
-  //   Map<String, dynamic> data = <String, dynamic>{
-  //     'budget': newBudget,
-  //   };
-  //
-  //   return FirebaseFirestore.instance.collection('users')
-  //       .doc(uid)
-  //       .collection('budgets')
-  //       .doc('total_budget')
-  //       .update(data)
-  //       .whenComplete(() => print("total_budget updated completed"))
-  //       .catchError((e) => print(e));
-  // }
+  Future<void> updateTotalBudget(int budget) async {
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+    var ds = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('budgets')
+        .doc('total_budget')
+        .get();
+    
+    Map<String, dynamic>? data = ds.data();
+    int initialTotal = data?['budget'] ;
+    int changedTotal = initialTotal + budget;
+
+    return FirebaseFirestore.instance.collection('users')
+        .doc(uid)
+        .collection('budgets')
+        .doc('total_budget')
+        .update({'budget':changedTotal});
+  }
+
 
   // 계정 새로 추가 했을 때
   Future<void> addAccount(String accName, String bankName, String accNum) async {

@@ -21,6 +21,7 @@ class _AddPage extends State<AddPage>{
   final _pricecontroller = TextEditingController();
   //카테고리
   final _categorycontroller = TextEditingController();
+
   //현금/카드 선택
   // final paymentList = ['cash','nonghyup', 'kookmin']; //db에서 리스트 갖고오기..
   // var payment='cash';
@@ -39,6 +40,7 @@ class _AddPage extends State<AddPage>{
 
     Future<void> addItem() async {
       try{
+
           userRef.doc(FirebaseAuth.instance.currentUser!.uid).collection('items').add({
           'category': _categorycontroller.text,
           'isIncome': (isSelected[0]==true)? true : false,
@@ -82,6 +84,7 @@ class _AddPage extends State<AddPage>{
               margin: const EdgeInsets.all(25),
               child: Column(
                 children: [
+
                   ToggleButtons(children: const <Widget>[
                       Padding(
                         padding: EdgeInsets.all(8),
@@ -92,6 +95,7 @@ class _AddPage extends State<AddPage>{
                           child: Text('수입'),
                       ),
                     ],
+
                   onPressed: (int index){
                     setState(() {
                       for(int i=0; i<isSelected.length; i++){
@@ -109,6 +113,7 @@ class _AddPage extends State<AddPage>{
                     decoration: const InputDecoration(labelText: '카테고리'),
                     controller: _categorycontroller,
                   ),
+
                   // DropdownButton(
                   //     value: payment,
                   //     items: paymentList.map((value){

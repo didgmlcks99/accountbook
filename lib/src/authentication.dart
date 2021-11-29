@@ -42,16 +42,6 @@ class Authentication extends StatelessWidget {
             signInWithGoogle(context);
           },
         ),
-        // ElevatedButton(
-        //   child: const Text('add Budget'),
-        //   style: ElevatedButton.styleFrom(
-        //     minimumSize: const Size(double.infinity, 50),
-        //     primary : Colors.red,
-        //   ),
-        //   onPressed: () async {
-        //     addBudget('test', 1010);
-        //   },
-        // ),
         ElevatedButton(
           child: const Text('logout'),
           style: ElevatedButton.styleFrom(

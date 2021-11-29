@@ -42,7 +42,6 @@ class Authentication extends StatelessWidget {
             signInWithGoogle(context);
           },
         ),
-
         ElevatedButton(
           child: const Text('logout'),
           style: ElevatedButton.styleFrom(

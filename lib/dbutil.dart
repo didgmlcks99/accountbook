@@ -79,18 +79,6 @@ class ApplicationState extends ChangeNotifier {
   String? _uid;
   String? get uid => _uid;
 
-  int? _newBudget;
-  int? get newBudget => null;
-/*
-  Future<bool> checkExistLike(String docId, String userId) {
-    return FirebaseFirestore.instance.collection('products')
-        .doc(docId)
-        .collection('likedUsers')
-        .snapshots().contains(userId);
-  }
-
- */
-
   void startLoginFlow() {
     _loginState = ApplicationLoginState.register;
     notifyListeners();
@@ -171,7 +159,6 @@ class ApplicationState extends ChangeNotifier {
 
     print("budget added to database");
 
-
     if(catName != "total_budget"){
       updateTotalBudget(budget);
       print("updated total_budget");
@@ -199,6 +186,7 @@ class ApplicationState extends ChangeNotifier {
         .collection('budgets')
         .doc('total_budget')
         .get();
+    
     Map<String, dynamic>? data = ds.data();
     int initialTotal = data?['budget'] ;
     int changedTotal = initialTotal + budget;
@@ -209,6 +197,7 @@ class ApplicationState extends ChangeNotifier {
         .doc('total_budget')
         .update({'budget':changedTotal});
   }
+
 
   // 계정 새로 추가 했을 때
   Future<void> addAccount(String accName, String bankName, String accNum) async {
@@ -249,5 +238,4 @@ class ApplicationState extends ChangeNotifier {
       'price': price,
     });
   }
-
 }

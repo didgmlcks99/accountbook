@@ -20,10 +20,6 @@ class DatePage extends StatefulWidget{
 
 
 class _DatePage extends State<DatePage> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay = DateTime.now();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,42 +59,12 @@ class _DatePage extends State<DatePage> {
         builder: (context, appState, _) => Center(
           child: Column(
             children: [
-              TableCalendar(
-                firstDay: DateTime.utc(2010, 10, 16),
-                lastDay: DateTime.utc(2030, 3, 14),
-                focusedDay: _focusedDay,
-                calendarFormat: _calendarFormat,
-                selectedDayPredicate: (day) {
-                  return isSameDay(_selectedDay, day);
-                },
-                onDaySelected: (selectedDay, focusedDay) {
-                  appState.changedDate(selectedDay);
-                  if (!isSameDay(_selectedDay, selectedDay)) {
-                    // Call `setState()` when updating the selected day
-                    setState(() {
-                      _selectedDay = selectedDay;
-                      _focusedDay = focusedDay;
-                    });
-                  }
-                },
-                onFormatChanged: (format) {
-                  if (_calendarFormat != format) {
-                    // Call `setState()` when updating calendar format
-                    setState(() {
-                      _calendarFormat = format;
-                    });
-                  }
-                },
-                onPageChanged: (focusedDay) {
-                  // No need to call `setState()` here
-                  _focusedDay = focusedDay;
-                },
-              ),
+              showCalendar(appState),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   Text(
-                    DateFormat('yyyy-MM-dd').format(_selectedDay!),
+                    DateFormat('yyyy-MM-dd').format(appState.selectedDay),
                     style: const TextStyle(
                       decoration: TextDecoration.underline,
                     )
@@ -109,7 +75,7 @@ class _DatePage extends State<DatePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => AddPage(date: Timestamp.fromDate(_selectedDay!))
+                            builder: (context) => AddPage(date: Timestamp.fromDate(appState.selectedDay))
                         ),
                       );
                     },
@@ -138,7 +104,12 @@ class _DatePage extends State<DatePage> {
             key: Key(items[index].category),
             onDismissed: (direction){
               setState((){
-                appState.deleteItem(items[index].itemId);
+                appState.deleteItem(items[index].itemId,
+                    items[index].category,
+                    items[index].price,
+                    items[index].inOut,
+                    items[index].date,
+                );
                 items.removeAt(index);
               });
 
@@ -161,6 +132,44 @@ class _DatePage extends State<DatePage> {
         return const Divider();
       },
       ),
+    );
+  }
+
+  showCalendar(ApplicationState appState) {
+    CalendarFormat _calendarFormat = CalendarFormat.month;
+    DateTime _focusedDay = appState.selectedDay;
+    DateTime _selectedDay = appState.selectedDay;
+
+    return TableCalendar(
+      firstDay: DateTime.utc(2010, 10, 16),
+      lastDay: DateTime.utc(2030, 3, 14),
+      focusedDay: _focusedDay,
+      calendarFormat: _calendarFormat,
+      selectedDayPredicate: (day) {
+        return isSameDay(_selectedDay, day);
+      },
+      onDaySelected: (selectedDay, focusedDay) {
+        appState.changedDate(selectedDay);
+        if (!isSameDay(_selectedDay, selectedDay)) {
+          // Call `setState()` when updating the selected day
+          setState(() {
+            _selectedDay = selectedDay;
+            _focusedDay = focusedDay;
+          });
+        }
+      },
+      onFormatChanged: (format) {
+        if (_calendarFormat != format) {
+          // Call `setState()` when updating calendar format
+          setState(() {
+            _calendarFormat = format;
+          });
+        }
+      },
+      onPageChanged: (focusedDay) {
+        // No need to call `setState()` here
+        _focusedDay = focusedDay;
+      },
     );
   }
 }

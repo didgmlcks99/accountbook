@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import 'dbutil.dart';
+import 'model/budget.dart';
 
 //예산관리
 class BudgetPage extends StatefulWidget {
@@ -16,33 +18,32 @@ class BudgetPage extends StatefulWidget {
 
 
 class _BudgetPage extends State<BudgetPage> {
-  final ApplicationState _applicationState = ApplicationState();
   //금액, 카테고리
   final _priceController = TextEditingController();
   final _categoryController = TextEditingController();
 
   var priceFormat = NumberFormat.currency(locale: "ko_KR", symbol: "￦");
 
-  Widget _buildCards(BuildContext context, DocumentSnapshot doc) {
+  Widget _buildCards(BuildContext context, Budget doc/*DocumentSnapshot doc*/) {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              '${doc['category']} : ' + priceFormat.format(doc['budget']),
+              doc.category + " : " + priceFormat.format(doc.budget),
               style: const TextStyle(
                 color: Colors.blue,
               ),
             ),
             Text(
-              '지출 : ' + priceFormat.format(doc['used']),
+              '지출 : ' + priceFormat.format(doc.used),
               style: const TextStyle(
                 color: Colors.red,
               ),
             ),
             Text(
-              '남은금액 : ' + priceFormat.format(doc['budget'] - doc['used']),
+              '남은금액 : ' + priceFormat.format(doc.budget - doc.used),
               style: const TextStyle(
                 color: Colors.green,
               ),
@@ -73,12 +74,14 @@ class _BudgetPage extends State<BudgetPage> {
               ],
             ),
             actions: [
-              TextButton(
+              Consumer<ApplicationState>(
+                builder: (context, appState, _) => TextButton(
                   child: const Text('추가'),
-                onPressed: (){
-                  _applicationState.addBudget(_categoryController.text, int.parse(_priceController.text));
+                  onPressed: (){
+                    appState.addBudget(_categoryController.text, int.parse(_priceController.text));
                     Navigator.pop(context);
-                },
+                  },
+                ),
               ),
             ],
           );
@@ -102,28 +105,22 @@ class _BudgetPage extends State<BudgetPage> {
             ),
           ],
         ),
-        body: Center(
-          child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(FirebaseAuth.instance.currentUser!.uid)
-                  .collection('budgets')
-                  .snapshots(),
+        body: Consumer<ApplicationState>(
+          builder: (context, appState, _) => _buildTiles(context, appState),
+        ),
+    );
+  }
 
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
-            }
-          return ListView.builder(
-            shrinkWrap: false,
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (BuildContext context, int index) {
-            return Card(
-              child: _buildCards(context, snapshot.data!.docs[index]));
-            },
-          );
-        }),
-      ),
+  _buildTiles(BuildContext context, ApplicationState appState){
+    List<Budget> budgets = appState.budgets;
+
+    return ListView.builder(
+      shrinkWrap: false,
+      itemCount: budgets.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Card(
+            child: _buildCards(context, budgets[index]));
+      },
     );
   }
 }

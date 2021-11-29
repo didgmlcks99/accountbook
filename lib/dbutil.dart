@@ -52,15 +52,40 @@ class ApplicationState extends ChangeNotifier {
                       itemId: document.id.toString(),
                       price: document.data()['price'],
                       inOut: document.data()['inOut'],
+                      date: document.data()['date'],
                     ),
                   );
                 }
               }
               notifyListeners();
         });
+
+        _budgetSubscription = FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .collection('budgets')
+            .snapshots()
+            .listen((snapshot){
+              _budgets = [];
+              for(var document in snapshot.docs){
+                _budgets.add(
+                  Budget(
+                    budget: document.data()['budget'],
+                    category: document.data()['category'].toString(),
+                    used: document.data()['used'],
+                    date: document.data()['date'],
+                  ),
+                );
+              }
+              notifyListeners();
+        });
+
       } else {
         _items = [];
         _itemSubscription?.cancel();
+
+        _budgets = [];
+        _budgetSubscription?.cancel();
 
         print("user logged out > " + _uid!);
 
@@ -91,8 +116,8 @@ class ApplicationState extends ChangeNotifier {
   List<Item> _items = [];
   List<Item> get items => _items;
 
-  DateTime? _selectedDay = DateTime.now();
-  DateTime? get selectedDay => _selectedDay;
+  DateTime _selectedDay = DateTime.now();
+  DateTime get selectedDay => _selectedDay;
 
   StreamSubscription<QuerySnapshot>? _budgetSubscription;
   List<Budget> _budgets = [];
@@ -235,30 +260,41 @@ class ApplicationState extends ChangeNotifier {
     // Timestamp stampCur = (FieldValue.serverTimestamp() as Timestamp);
     DateTime currDate = DateTime.now(); //DateTime.parse(stampCur.toDate().toString());
 
-    FirebaseFirestore.instance
+    List<int> prices = [];
+
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
         .collection('items')
-        .orderBy('date', descending: false)
-        .snapshots()
-        .listen((snapshot) {
-      for(var document in snapshot.docs){
-        Timestamp stampDB = document.data()['date'];
-        DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            Timestamp stampDB = doc['date'];
+            DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
 
-        String catDB = document.data()['category'];
+            String catDB = doc['category'];
 
-        bool inOut = document.data()['inOut'];
+            bool inOut = doc['inOut'];
 
-        if((dateDB.year == currDate.year)
-            && (dateDB.month == currDate.month)
-            && (catDB == catName)
-            && (inOut == true)) {
-          int outPrice = document.data()['price'];
-          updateUsedBudget(catDB, outPrice);
-        }
-      }
-    });
+            if((dateDB.year == currDate.year)
+                && (dateDB.month == currDate.month)
+                && (catDB == catName)
+                && (inOut == true)) {
+              // int outPrice = doc['price'];
+              prices.add(doc['price']);
+              // updateUsedBudget(catDB, outPrice);
+            }
+
+          }
+        });
+
+    int outPrice = 0;
+
+    for(int i in prices){
+      outPrice += i;
+    }
+
+    updateUsedBudget(catName, outPrice);
   }
 
   // 새로 지출/수입 추가 했을 때
@@ -362,7 +398,7 @@ class ApplicationState extends ChangeNotifier {
   }
 
   // 지출/수입 기록 삭제 하였을 때
-  Future<void> deleteItem(String itemId) async {
+  Future<void> deleteItem(String itemId, String category, int outPrice, bool inOut, Timestamp? date) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
@@ -375,6 +411,19 @@ class ApplicationState extends ChangeNotifier {
         .delete()
         .then((value) => print("item deleted from database"))
         .catchError((error) => print("failed deletion"));
+
+    bool budgetExists = await checkBudgetExists(category);
+
+    Timestamp stampDB = date!;
+    DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+
+    DateTime currDate = DateTime.now();
+
+    if((dateDB.year == currDate.year)
+        && (dateDB.month == currDate.month)
+        && (inOut == true)){
+      updateUsedBudget(category, (outPrice * -1));
+    }
   }
 
   // 달력에서 선택된 날짜가 바뀌었을 때
@@ -410,6 +459,7 @@ class ApplicationState extends ChangeNotifier {
               itemId: document.id.toString(),
               price: document.data()['price'],
               inOut: document.data()['inOut'],
+              date: document.data()['date'],
             ),
           );
         }

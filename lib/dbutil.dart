@@ -81,13 +81,15 @@ class ApplicationState extends ChangeNotifier {
 
   int? _newBudget;
   int? get newBudget => null;
-
+/*
   Future<bool> checkExistLike(String docId, String userId) {
     return FirebaseFirestore.instance.collection('products')
         .doc(docId)
         .collection('likedUsers')
         .snapshots().contains(userId);
   }
+
+ */
 
   void startLoginFlow() {
     _loginState = ApplicationLoginState.register;
@@ -159,6 +161,7 @@ class ApplicationState extends ChangeNotifier {
   }
 
   // 새로 예산 정보 추가 했을 때
+  //아번 달에 해당 카테고리에 지출한거 있는지 확인하고 used 설정 (total used도 설정)
   Future<void> addBudget(String catName, int budget) async {
     print(_loginState.toString());
 
@@ -167,6 +170,7 @@ class ApplicationState extends ChangeNotifier {
     }
 
     print("budget added to database");
+
 
     if(catName != "total_budget"){
       updateTotalBudget(budget);
@@ -189,34 +193,21 @@ class ApplicationState extends ChangeNotifier {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
-
-    await FirebaseFirestore.instance
+    var ds = await FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
         .collection('budgets')
         .doc('total_budget')
-        .get()
-        .then((DocumentSnapshot documentSnapshot){
-          _newBudget = int.parse(documentSnapshot.get('budget')) + budget;
-          // updateBudget = Budget(
-          //   budget: documentSnapshot.get('budget') + budget,
-          //   category: documentSnapshot.get('category').toString(),
-          //   used: documentSnapshot.get('used'),
-          // );
-    });
-
-
-    Map<String, dynamic> data = <String, dynamic>{
-      'budget': newBudget,
-    };
+        .get();
+    Map<String, dynamic>? data = ds.data();
+    int initialTotal = data?['budget'] ;
+    int changedTotal = initialTotal + budget;
 
     return FirebaseFirestore.instance.collection('users')
         .doc(uid)
         .collection('budgets')
         .doc('total_budget')
-        .update(data)
-        .whenComplete(() => print("total_budget updated completed"))
-        .catchError((e) => print(e));
+        .update({'budget':changedTotal});
   }
 
   // 계정 새로 추가 했을 때

@@ -18,9 +18,7 @@ class _AddPage extends State<AddPage>{
   final _pricecontroller = TextEditingController();
   //카테고리
   final _categorycontroller = TextEditingController();
-  //현금/카드 선택
-  final paymentList = ['cash','nonghyup', 'kookmin']; //db에서 리스트 갖고오기..
-  var payment='cash';
+
 
   @override
   void dispose(){
@@ -37,7 +35,6 @@ class _AddPage extends State<AddPage>{
     Future<void> addItem() async {
       try{
           user_ref.doc(FirebaseAuth.instance.currentUser!.uid).collection('items').add({
-          'account': payment,
           'category': _categorycontroller.text,
           'isIncome': (isSelected[0]==true)? true : false,
           'price': int.parse(_pricecontroller.text),
@@ -55,7 +52,7 @@ class _AddPage extends State<AddPage>{
           centerTitle: true,
           leading: TextButton(
             child: Text('Cancel',
-              style: TextStyle(color: Colors.white, fontSize: 13),),
+              style: TextStyle(color: Colors.white, fontSize: 12),),
             onPressed: () {
               Navigator.pop(context,'');
             },
@@ -77,7 +74,9 @@ class _AddPage extends State<AddPage>{
               margin: EdgeInsets.all(25),
               child: Column(
                 children: [
-                  ToggleButtons(children: <Widget>[
+                  ToggleButtons(
+
+                    children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.all(8),
                         child: Text(
@@ -91,6 +90,7 @@ class _AddPage extends State<AddPage>{
                        )
                       ),
                     ],
+
                   onPressed: (int index){
                     setState(() {
                       for(int i=0; i<isSelected.length; i++){
@@ -108,7 +108,7 @@ class _AddPage extends State<AddPage>{
                     decoration: InputDecoration(labelText: '카테고리'),
                     controller: _categorycontroller,
                   ),
-
+/*
                   DropdownButton(
                       value: payment,
                       items: paymentList.map((value){
@@ -121,6 +121,8 @@ class _AddPage extends State<AddPage>{
                         payment = value.toString();
                     });
                     }),
+
+ */
                 ],
               ),
             )

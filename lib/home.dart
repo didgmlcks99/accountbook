@@ -1,10 +1,11 @@
-import 'package:accountbook/search.dart';
-import 'package:accountbook/statistics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'add.dart';
-//날짜별관
+import 'budget.dart';
+import 'date.dart';
+import 'package:accountbook/profile.dart';
+
+//navigation bar
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -14,59 +15,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex=0;
+  final List<Widget> _pagelist =[DatePage(), BudgetPage(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.bar_chart,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => StatisticsPage()
-              ),
-            );
-          },
-        ),
-        title: const Text('한달내역'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(
-              Icons.search,
-            ),
-            onPressed: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SearchPage()
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            FloatingActionButton(
-              child: Icon(Icons.add),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AddPage()
-                  ),
-                );
-              },),
-          ],
-        ),
 
-      ),
+      body: _pagelist[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (int index){
@@ -76,16 +31,16 @@ class _HomePageState extends State<HomePage> {
         },
         items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.layers_outlined),
-              label: '계좌별 관리'
-          ),
-          BottomNavigationBarItem(
               icon: Icon(Icons.perm_contact_cal_outlined),
               label: '날짜별 관리'
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.my_library_books_outlined),
               label: '예산 관리'
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.layers_outlined),
+              label: '회원 정보'
           ),
         ],
       ),

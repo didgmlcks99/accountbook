@@ -38,7 +38,7 @@ class _BudgetPage extends State<BudgetPage> {
   void addBudgetDialog(){
     showDialog(
         context: context,
-        barrierDismissible: false,
+        barrierDismissible: true,
         builder: (BuildContext context){
           return AlertDialog(
 

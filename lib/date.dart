@@ -1,19 +1,29 @@
 import 'package:accountbook/search.dart';
 import 'package:accountbook/statistics.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import 'add.dart';
+import 'dbutil.dart';
+import 'model/item.dart';
 //회원정보
 class DatePage extends StatefulWidget{
   const DatePage({Key? key}) : super(key: key);
 
   @override
-  _DatePage createState() => new _DatePage();
+  _DatePage createState() => _DatePage();
 }
 
 
 class _DatePage extends State<DatePage> {
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +37,7 @@ class _DatePage extends State<DatePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => StatisticsPage()
+                  builder: (context) => const StatisticsPage()
               ),
             );
           },
@@ -42,29 +52,114 @@ class _DatePage extends State<DatePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => SearchPage()
+                    builder: (context) => const SearchPage()
                 ),
               );
             },
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          children: [
-            FloatingActionButton(
-              child: Icon(Icons.add),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AddPage()
+      body: Consumer<ApplicationState>(
+        builder: (context, appState, _) => Center(
+          child: Column(
+            children: [
+              TableCalendar(
+                firstDay: DateTime.utc(2010, 10, 16),
+                lastDay: DateTime.utc(2030, 3, 14),
+                focusedDay: _focusedDay,
+                calendarFormat: _calendarFormat,
+                selectedDayPredicate: (day) {
+                  return isSameDay(_selectedDay, day);
+                },
+                onDaySelected: (selectedDay, focusedDay) {
+                  appState.changedDate(selectedDay);
+                  if (!isSameDay(_selectedDay, selectedDay)) {
+                    // Call `setState()` when updating the selected day
+                    setState(() {
+                      _selectedDay = selectedDay;
+                      _focusedDay = focusedDay;
+                    });
+                  }
+                },
+                onFormatChanged: (format) {
+                  if (_calendarFormat != format) {
+                    // Call `setState()` when updating calendar format
+                    setState(() {
+                      _calendarFormat = format;
+                    });
+                  }
+                },
+                onPageChanged: (focusedDay) {
+                  // No need to call `setState()` here
+                  _focusedDay = focusedDay;
+                },
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Text(
+                    DateFormat('yyyy-MM-dd').format(_selectedDay!),
+                    style: const TextStyle(
+                      decoration: TextDecoration.underline,
+                    )
                   ),
-                );
-              },),
-          ],
+                  FloatingActionButton(
+                    child: const Icon(Icons.add),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddPage(date: Timestamp.fromDate(_selectedDay!))
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              _buildList(context, appState),
+            ],
+          ),
         ),
+      ),
+    );
+  }
 
+  Widget _buildList(BuildContext context, ApplicationState appState){
+    var priceFormat = NumberFormat.currency(locale: "ko_KR", symbol: "￦");
+
+    List<Item> items = appState.items;
+
+    return Expanded(
+      child: ListView.separated(
+        itemCount: items.length,
+        itemBuilder: (context, index){
+          final tile = items[index].itemId;
+          return Dismissible(
+            key: Key(items[index].category),
+            onDismissed: (direction){
+              setState((){
+                appState.deleteItem(items[index].itemId);
+                items.removeAt(index);
+              });
+
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text('$tile deleted')));
+            },
+            background: Container(color: Colors.red),
+            child: ListTile(
+              title: Text(items[index].category),
+              subtitle: Text(items[index].memo),
+              trailing: Text(
+                priceFormat.format(items[index].price),
+                style: TextStyle(
+                  color: items[index].inOut == true ? Colors.red : Colors.blue,
+                ),
+              ),
+            ),
+          );
+        }, separatorBuilder: (BuildContext context, int index) {
+        return const Divider();
+      },
       ),
     );
   }

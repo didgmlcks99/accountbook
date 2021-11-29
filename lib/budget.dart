@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'dbutil.dart';
 
@@ -10,16 +11,17 @@ class BudgetPage extends StatefulWidget {
   const BudgetPage({Key? key}) : super(key: key);
 
   @override
-  _BudgetPage createState() => new _BudgetPage();
+  _BudgetPage createState() => _BudgetPage();
 }
 
 
 class _BudgetPage extends State<BudgetPage> {
-  ApplicationState _applicationState = new ApplicationState();
-  //금액
-  final _pricecontroller = TextEditingController();
-  //카테고리
-  final _categorycontroller = TextEditingController();
+  final ApplicationState _applicationState = ApplicationState();
+  //금액, 카테고리
+  final _priceController = TextEditingController();
+  final _categoryController = TextEditingController();
+
+  var priceFormat = NumberFormat.currency(locale: "ko_KR", symbol: "￦");
 
   Widget _buildCards(BuildContext context, DocumentSnapshot doc) {
     return Card(
@@ -27,10 +29,25 @@ class _BudgetPage extends State<BudgetPage> {
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('${doc['category']} : ${doc['budget'].toString()} 원'),
-            Text('지출 : ${doc['used'].toString()} 원'),
-            Text('남은금액 : ${(doc['budget'] - doc['used']).toString()} 원'),
-          ]
+            Text(
+              '${doc['category']} : ' + priceFormat.format(doc['budget']),
+              style: const TextStyle(
+                color: Colors.blue,
+              ),
+            ),
+            Text(
+              '지출 : ' + priceFormat.format(doc['used']),
+              style: const TextStyle(
+                color: Colors.red,
+              ),
+            ),
+            Text(
+              '남은금액 : ' + priceFormat.format(doc['budget'] - doc['used']),
+              style: const TextStyle(
+                color: Colors.green,
+              ),
+            ),
+          ],
       ),
     );
   }
@@ -41,29 +58,28 @@ class _BudgetPage extends State<BudgetPage> {
         barrierDismissible: true,
         builder: (BuildContext context){
           return AlertDialog(
-
            title: const Text('예산 카테고리 추가하기'),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 TextField(
-                  decoration: InputDecoration(labelText: '카테고리'),
-                  controller: _categorycontroller,
+                  decoration: const InputDecoration(labelText: '카테고리'),
+                  controller: _categoryController,
                 ),
                 TextField(
-                  decoration: InputDecoration(labelText: '예산금액'),
-                  controller: _pricecontroller,
+                  decoration: const InputDecoration(labelText: '예산금액'),
+                  controller: _priceController,
                 ),
               ],
             ),
             actions: [
               TextButton(
-                  child: Text('추가'),
+                  child: const Text('추가'),
                 onPressed: (){
-                  _applicationState.addBudget(_categorycontroller.text, int.parse(_pricecontroller.text));
+                  _applicationState.addBudget(_categoryController.text, int.parse(_priceController.text));
                     Navigator.pop(context);
                 },
-              )
+              ),
             ],
           );
         }
@@ -86,27 +102,27 @@ class _BudgetPage extends State<BudgetPage> {
             ),
           ],
         ),
-
         body: Center(
           child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('users')
+              stream: FirebaseFirestore.instance
+                  .collection('users')
                   .doc(FirebaseAuth.instance.currentUser!.uid)
                   .collection('budgets')
-              .snapshots(),
+                  .snapshots(),
 
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return CircularProgressIndicator();
+              return const CircularProgressIndicator();
             }
           return ListView.builder(
             shrinkWrap: false,
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (BuildContext context, int index) {
-            return new Card(
+            return Card(
               child: _buildCards(context, snapshot.data!.docs[index]));
             },
           );
-        })
+        }),
       ),
     );
   }

@@ -1,12 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'dbutil.dart';
 
 final globalScaffoldKey = GlobalKey<ScaffoldState>();
 
 class AddPage extends StatefulWidget{
-  const AddPage({Key? key}) : super(key: key);
+  const AddPage({Key? key, required this.date}) : super(key: key);
+
+  final Timestamp date;
 
   @override
   _AddPage createState() => _AddPage();
@@ -15,12 +19,11 @@ class AddPage extends StatefulWidget{
 class _AddPage extends State<AddPage>{
   _AddPage();
 
-  //입금/지출
+  //입금/지출, 금액, 카테고리, 메
   List<bool> isSelected = List.generate(2, (index) => false);
-  //금액
-  final _pricecontroller = TextEditingController();
-  //카테고리
-  final _categorycontroller = TextEditingController();
+  final _categoryController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _memoController = TextEditingController();
 
   //현금/카드 선택
   // final paymentList = ['cash','nonghyup', 'kookmin']; //db에서 리스트 갖고오기..
@@ -28,29 +31,14 @@ class _AddPage extends State<AddPage>{
 
   @override
   void dispose(){
-    _pricecontroller.dispose();
-    _categorycontroller.dispose();
+    _categoryController.dispose();
+    _priceController.dispose();
+    _memoController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
-    CollectionReference userRef = FirebaseFirestore.instance.collection('users');
-
-    Future<void> addItem() async {
-      try{
-
-          userRef.doc(FirebaseAuth.instance.currentUser!.uid).collection('items').add({
-          'category': _categorycontroller.text,
-          'isIncome': (isSelected[0]==true)? true : false,
-          'price': int.parse(_pricecontroller.text),
-          'date': Timestamp.now(),
-        });
-      }catch (e){
-        print(e);
-      }
-     }
 
     return Scaffold(
       key: globalScaffoldKey,
@@ -66,16 +54,25 @@ class _AddPage extends State<AddPage>{
           ),
           title: const Text('Add'),
           actions: <Widget>[
-            TextButton(
+            Consumer<ApplicationState>(
+              builder: (context, appState, _) => TextButton(
                 child: const Text('Save',
-                  style: TextStyle(color: Colors.white, fontSize: 17),),
+                  style: TextStyle(color: Colors.white, fontSize: 17),
+                ),
                 onPressed: (){
-                  addItem();
+                  appState.addItem(
+                    _categoryController.text,
+                    (isSelected[0]==true)? true : false,
+                    int.parse(_priceController.text),
+                    _memoController.text,
+                    widget.date,
+                  );
                   Navigator.pop(context);
                 }
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -84,18 +81,16 @@ class _AddPage extends State<AddPage>{
               margin: const EdgeInsets.all(25),
               child: Column(
                 children: [
-
                   ToggleButtons(children: const <Widget>[
-                      Padding(
+                    Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text('지출'),
+                    ),
+                    Padding(
                         padding: EdgeInsets.all(8),
-                        child: Text('지출'),
-                      ),
-                      Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Text('수입'),
-                      ),
-                    ],
-
+                        child: Text('수입'),
+                    ),
+                  ],
                   onPressed: (int index){
                     setState(() {
                       for(int i=0; i<isSelected.length; i++){
@@ -103,17 +98,20 @@ class _AddPage extends State<AddPage>{
                       }
                     });
                   },
-                     isSelected: isSelected,
-                  ),
-                  TextField(
-                    decoration: const InputDecoration(labelText: '금액'),
-                    controller: _pricecontroller,
+                    isSelected: isSelected,
                   ),
                   TextField(
                     decoration: const InputDecoration(labelText: '카테고리'),
-                    controller: _categorycontroller,
+                    controller: _categoryController,
                   ),
-
+                  TextField(
+                    decoration: const InputDecoration(labelText: '금액'),
+                    controller: _priceController,
+                  ),
+                  TextField(
+                    decoration: const InputDecoration(labelText: '메모'),
+                    controller: _memoController,
+                  ),
                   // DropdownButton(
                   //     value: payment,
                   //     items: paymentList.map((value){
@@ -133,5 +131,4 @@ class _AddPage extends State<AddPage>{
         )
     );
   }
-
 }

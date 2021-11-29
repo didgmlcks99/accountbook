@@ -5,7 +5,7 @@ class ProfilePage extends StatefulWidget{
   const ProfilePage({Key? key}) : super(key: key);
 
   @override
-  _ProfilePage createState() => new _ProfilePage();
+  _ProfilePage createState() => _ProfilePage();
 }
 
 

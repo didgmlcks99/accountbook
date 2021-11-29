@@ -41,16 +41,16 @@ class _LoginPageState extends State<LoginPage> {
               )
             ),
             const SizedBox(height: 12.0),
-            // ButtonBar(
-            //   children: <Widget>[
-            //     ElevatedButton(
-            //       child: const Text('NEXT'),
-            //       onPressed: () {
-            //         Navigator.pop(context);
-            //       },
-            //     ),
-            //   ],
-            // ),
+            ButtonBar(
+              children: <Widget>[
+                ElevatedButton(
+                  child: const Text('NEXT'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
           ],
         ),
       ),

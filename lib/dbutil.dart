@@ -5,8 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import 'model/budget.dart';
+import 'model/item.dart';
 import 'src/authentication.dart';
 
 class ApplicationState extends ChangeNotifier {
@@ -24,43 +26,49 @@ class ApplicationState extends ChangeNotifier {
         _photoURL = user.photoURL;
         _uid = user.uid;
         _loginState = ApplicationLoginState.loggedIn;
-        print(user.uid + ': User is signed in!');
 
         bool userExists = await checkUserExists(_uid!);
-        print("User exists in Firestore? " + userExists.toString());
+        print("user existence in database > " + userExists.toString() + " : " + uid!);
 
         if(userExists == false) addUser();
 
-        // _productSubscription = FirebaseFirestore.instance
-        //     .collection('products')
-        //     .orderBy('productPrice', descending: false)
-        //     .snapshots()
-        //     .listen((snapshot){
-        //   _products = [];
-        //   for(var document in snapshot.docs){
-        //     print("Products: " + document.id);
-        //     _products.add(
-        //       Product(
-        //         picUrl: document.data()['picUrl'].toString(),
-        //         ownerId: document.data()['ownerId'].toString(),
-        //         ownerName: document.data()['ownerName'].toString(),
-        //         productCreated: document.data()['productCreated'],
-        //         productModified: document.data()['productModified'],
-        //         docId: document.id.toString(),
-        //         productName: document.data()['productName'].toString(),
-        //         productPrice: document.data()['productPrice'].toString(),
-        //         productDesc: document.data()['productDesc'].toString(),
-        //         productLikes: document.data()['productLikes'].toString(),
-        //       ),
-        //     );
-        //   }
-        //   notifyListeners();
-        // });
+        _itemSubscription = FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .collection('items')
+            .orderBy('date', descending: false)
+            .snapshots()
+            .listen((snapshot) {
+              _items = [];
+              for(var document in snapshot.docs){
+                Timestamp stampDB = document.data()['date'];
+                DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
 
+                if(isSameDay(dateDB, selectedDay) == true){
+                  _items.add(
+                    Item(
+                      category: document.data()['category'].toString(),
+                      memo: document.data()['memo'].toString(),
+                      itemId: document.id.toString(),
+                      price: document.data()['price'],
+                      inOut: document.data()['inOut'],
+                    ),
+                  );
+                }
+              }
+              notifyListeners();
+        });
       } else {
+        _items = [];
+        _itemSubscription?.cancel();
+
+        print("user logged out > " + _uid!);
+
+        _email = null;
+        _photoURL = null;
+        _uid = null;
         _loginState = ApplicationLoginState.loggedOut;
 
-        print(': User is currently signed out!');
       }
       notifyListeners();
     });
@@ -78,6 +86,17 @@ class ApplicationState extends ChangeNotifier {
 
   String? _uid;
   String? get uid => _uid;
+
+  StreamSubscription<QuerySnapshot>? _itemSubscription;
+  List<Item> _items = [];
+  List<Item> get items => _items;
+
+  DateTime? _selectedDay = DateTime.now();
+  DateTime? get selectedDay => _selectedDay;
+
+  StreamSubscription<QuerySnapshot>? _budgetSubscription;
+  List<Budget> _budgets = [];
+  List<Budget> get budgets => _budgets;
 
   void startLoginFlow() {
     _loginState = ApplicationLoginState.register;
@@ -100,25 +119,29 @@ class ApplicationState extends ChangeNotifier {
     // Once signed in, return the UserCredential
     await FirebaseAuth.instance.signInWithCredential(credential);
 
-    _loginState = ApplicationLoginState.loggedIn;
+    print("user logged in > " + uid!);
 
-    print(_loginState.toString());
+    _loginState = ApplicationLoginState.loggedIn;
 
     notifyListeners();
 
     Navigator.pop(context);
   }
 
-  void signOut() {
-    FirebaseAuth.instance.signOut();
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
+
+    print("user logged out > " + uid!);
+
     _loginState = ApplicationLoginState.loggedOut;
-    print(_loginState.toString());
+
     notifyListeners();
   }
 
   Future<bool> checkUserExists(String userId) async {
     try {
-      var collectionRef = FirebaseFirestore.instance.collection('users');
+      var collectionRef = FirebaseFirestore.instance
+          .collection('users');
 
       var doc = await collectionRef.doc(userId).get();
       return doc.exists;
@@ -133,7 +156,8 @@ class ApplicationState extends ChangeNotifier {
       throw Exception('Must be logged in');
     }
 
-    FirebaseFirestore.instance.collection('users')
+    await FirebaseFirestore.instance
+        .collection('users')
         .doc(uid)
         .set(({
       'email': FirebaseAuth.instance.currentUser!.email,
@@ -145,26 +169,18 @@ class ApplicationState extends ChangeNotifier {
     // budgets에 고정인, total_budget 만들어줘야하며 초기 값은 0으로 지정
     addBudget("total_budget", 0,);
 
-    print("user added to database, with default total_budget");
+    print("adding new user to database (with initial total_budget) > " + uid!);
   }
 
   // 새로 예산 정보 추가 했을 때
-  //아번 달에 해당 카테고리에 지출한거 있는지 확인하고 used 설정 (total used도 설정)
+  // 아번 달에 해당 카테고리에 지출한거 있는지 확인하고 used 설정 (total used도 설정)
   Future<void> addBudget(String catName, int budget) async {
-    print(_loginState.toString());
-
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
 
-    print("budget added to database");
-
-    if(catName != "total_budget"){
-      updateTotalBudget(budget);
-      print("updated total_budget");
-    }
-
-    return FirebaseFirestore.instance.collection('users')
+    await FirebaseFirestore.instance
+        .collection('users')
         .doc(uid)
         .collection('budgets')
         .doc(catName)
@@ -172,70 +188,234 @@ class ApplicationState extends ChangeNotifier {
       'category': catName,
       'budget': budget,
       'used': 0,
+      'date': FieldValue.serverTimestamp(),
     });
+
+    print("budget added to database > " + catName + " : " + budget.toString());
+
+    if(catName != "total_budget"){
+      updateTotalBudget(catName, budget);
+      checkForUsed(catName, budget);
+    }
 
   }
 
-  Future<void> updateTotalBudget(int budget) async {
+  // 새로운 예산 추가 되었을 때, 총 예산에 정보 반영
+  Future<void> updateTotalBudget(String catName, int budget) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
-    var ds = await FirebaseFirestore.instance
+
+    var totDoc = await FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
         .collection('budgets')
         .doc('total_budget')
         .get();
     
-    Map<String, dynamic>? data = ds.data();
-    int initialTotal = data?['budget'] ;
+    Map<String, dynamic>? totData = totDoc.data();
+    int initialTotal = totData?['budget'] ;
     int changedTotal = initialTotal + budget;
 
-    return FirebaseFirestore.instance.collection('users')
+    await FirebaseFirestore.instance
+        .collection('users')
         .doc(uid)
         .collection('budgets')
         .doc('total_budget')
         .update({'budget':changedTotal});
+
+    print("update to total_budget with new budget > +" + budget.toString());
   }
 
-
-  // 계정 새로 추가 했을 때
-  Future<void> addAccount(String accName, String bankName, String accNum) async {
+  Future<void> checkForUsed(String catName, int budget) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
 
-    print("account added to database");
+    // Timestamp stampCur = (FieldValue.serverTimestamp() as Timestamp);
+    DateTime currDate = DateTime.now(); //DateTime.parse(stampCur.toDate().toString());
 
-    return FirebaseFirestore.instance.collection('users')
+    FirebaseFirestore.instance
+        .collection('users')
         .doc(uid)
-        .collection('accounts')
-        .doc(accName)
-        .set({
-      'bank_name': bankName,
-      'account_num': accNum,
-      'current_asset': 0,
+        .collection('items')
+        .orderBy('date', descending: false)
+        .snapshots()
+        .listen((snapshot) {
+      for(var document in snapshot.docs){
+        Timestamp stampDB = document.data()['date'];
+        DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+
+        String catDB = document.data()['category'];
+
+        bool inOut = document.data()['inOut'];
+
+        if((dateDB.year == currDate.year)
+            && (dateDB.month == currDate.month)
+            && (catDB == catName)
+            && (inOut == true)) {
+          int outPrice = document.data()['price'];
+          updateUsedBudget(catDB, outPrice);
+        }
+      }
     });
   }
 
   // 새로 지출/수입 추가 했을 때
-  Future<DocumentReference> addItem(String accName, String category, bool inOut, String memo, int price) async {
+  Future<void> addItem(String category, bool inOut, int price, String memo, Timestamp date) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
 
-    print("item added to database");
-
-    return FirebaseFirestore.instance.collection('users')
+    await FirebaseFirestore.instance
+        .collection('users')
         .doc(uid)
         .collection('items')
         .add(<String, dynamic>{
-      'account': accName,
       'category': category,
-      'date': FieldValue.serverTimestamp(),
-      'in_out': inOut,
+      'date': date,
+      'inOut': inOut,
       'memo': memo,
       'price': price,
     });
+
+    print("item added to database > " + category + " : " + price.toString());
+
+    Timestamp stampDB = date;
+    DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+
+    DateTime currDate = DateTime.now();
+
+    if((dateDB.year == currDate.year)
+        && (dateDB.month == currDate.month)
+        && (inOut == true)){
+      updateUsedBudget(category, price);
+    }
+  }
+
+  Future<void> updateUsedBudget(String category, int outPrice) async {
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+
+    bool budgetExists = await checkBudgetExists(category);
+
+    if(budgetExists){
+      print("start updating used in budget");
+
+      var catDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('budgets')
+          .doc(category)
+          .get();
+
+      Map<String, dynamic>? catData = catDoc.data();
+      int initialUsed = catData?['used'];
+      int changedUsed = initialUsed + outPrice;
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('budgets')
+          .doc(category)
+          .update({'used': changedUsed});
+
+      print("updated 'used' to budget category > " + category + " : " + outPrice.toString());
+
+      var totDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('budgets')
+          .doc('total_budget')
+          .get();
+
+      Map<String, dynamic>? totData = totDoc.data();
+      int initTotUsed = totData?['used'] ;
+      int changedTotUsed = initTotUsed + outPrice;
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('budgets')
+          .doc('total_budget')
+          .update({'used': changedTotUsed});
+
+      print("updated used to tot_budget category > " + outPrice.toString());
+    }else{
+      print("the budget doesn't exist for this item's category");
+    }
+  }
+
+  Future<bool> checkBudgetExists(String catId) async {
+    try {
+      var collectionRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('budgets');
+
+      var doc = await collectionRef.doc(catId).get();
+      return doc.exists;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // 지출/수입 기록 삭제 하였을 때
+  Future<void> deleteItem(String itemId) async {
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('items')
+        .doc(itemId)
+        .delete()
+        .then((value) => print("item deleted from database"))
+        .catchError((error) => print("failed deletion"));
+  }
+
+  // 달력에서 선택된 날짜가 바뀌었을 때
+  Future<void> changedDate(DateTime dateTime) async{
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+
+    _selectedDay = dateTime;
+
+    _items = [];
+    _itemSubscription?.cancel();
+
+    notifyListeners();
+
+    _itemSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('items')
+        .orderBy('date', descending: false)
+        .snapshots()
+        .listen((snapshot) {
+      _items = [];
+      for(var document in snapshot.docs){
+        Timestamp stampDB = document.data()['date'];
+        DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+
+        if(isSameDay(dateDB, selectedDay) == true){
+          _items.add(
+            Item(
+              category: document.data()['category'].toString(),
+              memo: document.data()['memo'].toString(),
+              itemId: document.id.toString(),
+              price: document.data()['price'],
+              inOut: document.data()['inOut'],
+            ),
+          );
+        }
+      }
+      notifyListeners();
+    });
+
   }
 }

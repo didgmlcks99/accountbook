@@ -5,7 +5,7 @@ class AccountPage extends StatefulWidget{
   const AccountPage({Key? key}) : super(key: key);
 
   @override
-  _AccountPage createState() => new _AccountPage();
+  _AccountPage createState() => _AccountPage();
 }
 
 

@@ -409,7 +409,7 @@ class ApplicationState extends ChangeNotifier {
         .collection('items')
         .doc(itemId)
         .delete()
-        .then((value) => print("item deleted from database"))
+        .then((value) => print("item deleted from database > " + category + " : " + outPrice.toString()))
         .catchError((error) => print("failed deletion"));
 
     bool budgetExists = await checkBudgetExists(category);
@@ -421,7 +421,9 @@ class ApplicationState extends ChangeNotifier {
 
     if((dateDB.year == currDate.year)
         && (dateDB.month == currDate.month)
-        && (inOut == true)){
+        && (inOut == true)
+        && (budgetExists == true)
+    ){
       updateUsedBudget(category, (outPrice * -1));
     }
   }

@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -24,33 +22,76 @@ class _BudgetPage extends State<BudgetPage> {
 
   var priceFormat = NumberFormat.currency(locale: "ko_KR", symbol: "￦");
 
-  Widget _buildCards(BuildContext context, Budget doc/*DocumentSnapshot doc*/) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              doc.category + " : " + priceFormat.format(doc.budget),
-              style: const TextStyle(
-                color: Colors.blue,
+  Widget _buildTiles(BuildContext context, Budget doc, ApplicationState appState) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget> [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+          child: Text(
+            doc.category + " : " + priceFormat.format(doc.budget),
+            style: const TextStyle(
+              fontSize: 20,
+              color: Colors.blue,
+            ),
+          ),
+        ),
+        ListTile(
+          title: Text(
+            '지출 : ' + priceFormat.format(doc.used),
+            style: const TextStyle(
+              color: Colors.red,
+            ),
+          ),
+          subtitle: Text(
+            '남은금액 : ' + priceFormat.format(doc.budget - doc.used),
+            style: const TextStyle(
+              color: Colors.green,
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: TextButton(
+            child: const Text(
+              '삭제',
+              style: TextStyle(
+                fontSize: 20,
               ),
             ),
-            Text(
-              '지출 : ' + priceFormat.format(doc.used),
-              style: const TextStyle(
-                color: Colors.red,
-              ),
-            ),
-            Text(
-              '남은금액 : ' + priceFormat.format(doc.budget - doc.used),
-              style: const TextStyle(
-                color: Colors.green,
-              ),
-            ),
-          ],
-      ),
+            onPressed: () {
+              appState.deleteBudget(doc.category, doc.budget, doc.used);
+            },
+          ),
+        ),
+      ],
     );
+
+      // child: Column(
+      //     crossAxisAlignment: CrossAxisAlignment.start,
+      //     children: <Widget>[
+      //       Text(
+      //         doc.category + " : " + priceFormat.format(doc.budget),
+      //         style: const TextStyle(
+      //           color: Colors.blue,
+      //         ),
+      //       ),
+      //       Text(
+      //         '지출 : ' + priceFormat.format(doc.used),
+      //         style: const TextStyle(
+      //           color: Colors.red,
+      //         ),
+      //       ),
+      //       Text(
+      //         '남은금액 : ' + priceFormat.format(doc.budget - doc.used),
+      //         style: const TextStyle(
+      //           color: Colors.green,
+      //         ),
+      //       ),
+      //     ],
+      // ),
+    // );
   }
 
   void addBudgetDialog(){
@@ -105,22 +146,102 @@ class _BudgetPage extends State<BudgetPage> {
             ),
           ],
         ),
-        body: Consumer<ApplicationState>(
-          builder: (context, appState, _) => _buildTiles(context, appState),
+        body:
+
+        Consumer<ApplicationState>(
+          builder: (context, appState, _) => Center(
+            child: Column(
+              children: <Widget> [
+                makeMainBudget(appState),
+                _buildEachCard(context, appState)
+              ],
+            ),
+          ),
         ),
     );
   }
 
-  _buildTiles(BuildContext context, ApplicationState appState){
+  _buildEachCard(BuildContext context, ApplicationState appState){
     List<Budget> budgets = appState.budgets;
 
-    return ListView.builder(
-      shrinkWrap: false,
-      itemCount: budgets.length,
-      itemBuilder: (BuildContext context, int index) {
-        return Card(
-            child: _buildCards(context, budgets[index]));
-      },
+    return Expanded(
+        child: ListView.builder(
+          shrinkWrap: false,
+          itemCount: budgets.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Card(
+                child: _buildTiles(context, budgets[index], appState));
+          },
+        ),
+    );
+
+  }
+
+  makeMainBudget(ApplicationState appState) {
+    List<Budget> mainBudget = appState.mainBudget;
+
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            /// 둘중에 어떤 디자인이 좋은지 선
+            // Padding(
+            //   padding: const EdgeInsets.all(5),
+            //   child: Text(
+            //     mainBudget[0].category + " : " + priceFormat.format(mainBudget[0].budget),
+            //     style: const TextStyle(
+            //       color: Colors.blue,
+            //     ),
+            //   ),
+            // ),
+            // Padding(
+            //   padding: const EdgeInsets.all(5),
+            //   child: Text(
+            //     '사용 금액 : ' + priceFormat.format(mainBudget[0].used),
+            //     style: const TextStyle(
+            //       color: Colors.red,
+            //     ),
+            //   ),
+            // ),
+            // Padding(
+            //     padding: const EdgeInsets.all(5),
+            //     child: Text(
+            //       '남은 금액 : ' + priceFormat.format(mainBudget[0].budget - mainBudget[0].used),
+            //       style: const TextStyle(
+            //         color: Colors.green,
+            //       ),
+            //     ),
+            // ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+              child: Text(
+                mainBudget[0].category + " : " + priceFormat.format(mainBudget[0].budget),
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+            ListTile(
+              title: Text(
+                '사용 금액 : ' + priceFormat.format(mainBudget[0].used),
+                style: const TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+              subtitle: Text(
+                '남은 금액 : ' + priceFormat.format(mainBudget[0].budget - mainBudget[0].used),
+                style: const TextStyle(
+                  color: Colors.green,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

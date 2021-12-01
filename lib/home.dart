@@ -17,13 +17,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   int _selectedIndex=0;
-  final List<Widget> _pagelist =[DatePage(), BudgetPage(), SearchPage(),ProfilePage()];
+  final List<Widget> _pageList =[const DatePage(), const BudgetPage(), const SearchPage(), const ProfilePage()];
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-      body: _pagelist[_selectedIndex],
+      body: _pageList[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.blue,

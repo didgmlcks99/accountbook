@@ -32,55 +32,10 @@ class ApplicationState extends ChangeNotifier {
             uid!);
 
         if (userExists == false) addUser();
+
+        itemList();
+        budgetList();
         categoryList();
-        _itemSubscription = FirebaseFirestore.instance
-            .collection('users')
-            .doc(uid)
-            .collection('items')
-            .orderBy('date', descending: false)
-            .snapshots()
-            .listen((snapshot) {
-          _items = [];
-          for (var document in snapshot.docs) {
-            Timestamp stampDB = document.data()['date'];
-            DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
-
-            if (isSameDay(dateDB, selectedDay) == true) {
-              _items.add(
-                Item(
-                  category: document.data()['category'].toString(),
-                  memo: document.data()['memo'].toString(),
-                  itemId: document.id.toString(),
-                  price: document.data()['price'],
-                  inOut: document.data()['inOut'],
-                  date: document.data()['date'],
-                ),
-              );
-            }
-          }
-          notifyListeners();
-        });
-
-        _budgetSubscription = FirebaseFirestore.instance
-            .collection('users')
-            .doc(uid)
-            .collection('budgets')
-            .snapshots()
-            .listen((snapshot) {
-          _budgets = [];
-          for (var document in snapshot.docs) {
-            _budgets.add(
-              Budget(
-                budget: document.data()['budget'],
-                category: document.data()['category'].toString(),
-                used: document.data()['used'],
-                date: document.data()['date'],
-              ),
-            );
-          }
-          notifyListeners();
-        });
-
 
       } else {
         _items = [];
@@ -89,10 +44,12 @@ class ApplicationState extends ChangeNotifier {
         _budgets = [];
         _budgetSubscription?.cancel();
 
+        _mainBudget = [];
+
         _search = [];
         _searchSubscription?.cancel();
 
-        print("user logged out > " + _uid!);
+        print("user logged out > ");
 
         _email = null;
         _photoURL = null;
@@ -104,44 +61,38 @@ class ApplicationState extends ChangeNotifier {
   }
 
   ApplicationLoginState _loginState = ApplicationLoginState.loggedOut;
-
   ApplicationLoginState get loginState => _loginState;
 
   String? _photoURL;
-
   String? get photoURL => _photoURL;
 
   String? _email;
-
   String? get email => _email;
 
   String? _uid;
-
   String? get uid => _uid;
 
-//streamsubscription : stream인데 변경이 생기면 notify하는
+  //streamsubscription : stream인데 변경이 생기면 notify하는
   StreamSubscription<QuerySnapshot>? _itemSubscription;
-
   //calendar에서 선택된 날짜에 해당하는 item list
   List<Item> _items = [];
-
   List<Item> get items => _items;
 
   DateTime _selectedDay = DateTime.now();
-
   DateTime get selectedDay => _selectedDay;
-
   StreamSubscription<QuerySnapshot>? _budgetSubscription;
 
   //budget list
   List<Budget> _budgets = [];
-
   List<Budget> get budgets => _budgets;
-
   StreamSubscription<QuerySnapshot>? _searchSubscription;
+
   //검색 결과 item list
   List<Item> _search = [];
   List<Item> get search => _search;
+
+  List<Budget> _mainBudget = [];
+  List<Budget> get mainBudget => _mainBudget;
 
   //이번달 category list
   var _categories=Map<String, double>();
@@ -169,23 +120,16 @@ class ApplicationState extends ChangeNotifier {
 
     // Once signed in, return the UserCredential
     await FirebaseAuth.instance.signInWithCredential(credential);
-
     print("user logged in > " + uid!);
-
     _loginState = ApplicationLoginState.loggedIn;
-
     notifyListeners();
-
     Navigator.pop(context);
   }
 
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
-
     print("user logged out > " + uid!);
-
     _loginState = ApplicationLoginState.loggedOut;
-
     notifyListeners();
   }
 
@@ -245,13 +189,13 @@ class ApplicationState extends ChangeNotifier {
     print("budget added to database > " + catName + " : " + budget.toString());
 
     if (catName != "total_budget") {
-      updateTotalBudget(catName, budget);
+      updateTotalBudget(budget);
       checkForUsed(catName, budget);
     }
   }
 
   // 새로운 예산 추가 되었을 때, 총 예산에 정보 반영
-  Future<void> updateTotalBudget(String catName, int budget) async {
+  Future<void> updateTotalBudget(int budget) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
@@ -275,6 +219,45 @@ class ApplicationState extends ChangeNotifier {
         .update({'budget': changedTotal});
 
     print("update to total_budget with new budget > +" + budget.toString());
+  }
+
+  Future<void> deleteBudget(String budgetId, int budget, int used) async {
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('budgets')
+        .doc(budgetId)
+        .delete()
+        .then((value) =>
+        print("budget deleted from database > " + budgetId + " : " +
+            budget.toString()))
+        .catchError((error) => print("failed deletion"));
+
+    updateTotalBudget((budget*-1));
+
+    var totDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('budgets')
+        .doc('total_budget')
+        .get();
+
+    Map<String, dynamic>? totData = totDoc.data();
+    int initTotUsed = totData?['used'];
+    int changedTotUsed = initTotUsed + (used*-1);
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('budgets')
+        .doc('total_budget')
+        .update({'used': changedTotUsed});
+
+    print("updated used to tot_budget category > " + used.toString());
   }
 
   Future<void> checkForUsed(String catName, int budget) async {
@@ -730,4 +713,68 @@ class ApplicationState extends ChangeNotifier {
     });
   }
 
+  Future<void> budgetList() async {
+    _budgetSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('budgets')
+        .snapshots()
+        .listen((snapshot) {
+      _budgets = [];
+      _mainBudget = [];
+      for (var document in snapshot.docs) {
+        if(document.data()['category'] == 'total_budget'){
+          _mainBudget.add(
+            Budget(
+              budget: document.data()['budget'],
+              category: document.data()['category'].toString(),
+              used: document.data()['used'],
+              date: document.data()['date'],
+            ),
+          );
+          notifyListeners();
+        }else{
+          _budgets.add(
+            Budget(
+              budget: document.data()['budget'],
+              category: document.data()['category'].toString(),
+              used: document.data()['used'],
+              date: document.data()['date'],
+            ),
+          );
+        }
+      }
+      notifyListeners();
+    });
+  }
+
+  Future<void> itemList() async {
+    _itemSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('items')
+        .orderBy('date', descending: false)
+        .snapshots()
+        .listen((snapshot) {
+      _items = [];
+      for (var document in snapshot.docs) {
+        Timestamp stampDB = document.data()['date'];
+        DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+
+        if (isSameDay(dateDB, selectedDay) == true) {
+          _items.add(
+            Item(
+              category: document.data()['category'].toString(),
+              memo: document.data()['memo'].toString(),
+              itemId: document.id.toString(),
+              price: document.data()['price'],
+              inOut: document.data()['inOut'],
+              date: document.data()['date'],
+            ),
+          );
+        }
+      }
+      notifyListeners();
+    });
+  }
 }

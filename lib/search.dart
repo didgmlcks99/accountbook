@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +42,7 @@ class _SearchPage extends State<SearchPage> {
                   padding: EdgeInsets.fromLTRB(20, 10, 0, 0),
                   alignment: Alignment.centerLeft,
 
-                  child: Text("기간",
+                  child: const Text("기간",
                       style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -53,25 +51,25 @@ class _SearchPage extends State<SearchPage> {
                   ),),
 
                 Container(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   child: ToggleSwitch(
                     minWidth: 300,
                     inactiveBgColor: Colors.white,
                     dividerColor: Colors.grey,
                     //initialLabelIndex: 0,
                     totalSwitches: 3,
-                    labels: ['전체', '이번주', '이번달'],
+                    labels: const ['전체', '이번주', '이번달'],
                     onToggle: (index) {
                       term = termforSearch.values.elementAt(index);
-                      print('term : ${term}');
+                      print('term : $term');
                     },
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.fromLTRB(20, 10, 0, 0),
+                  padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
                   alignment: Alignment.centerLeft,
 
-                  child: Text("카테고리",
+                  child: const Text("카테고리",
                       style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -80,22 +78,22 @@ class _SearchPage extends State<SearchPage> {
                   ),),
 
                 Container(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   child: ToggleSwitch(
                     minWidth: 300,
                     inactiveBgColor: Colors.white,
                     dividerColor: Colors.grey,
                     //initialLabelIndex: 0,
                     totalSwitches: 3,
-                    labels: ['전체', '식비', 'hospital'],
+                    labels: const ['전체', '식비', 'hospital'],
                     onToggle: (index) {
                       category = cateforSearch.values.elementAt(index);
-                      print('category : ${category}');
+                      print('category : $category');
                     },
                   ),
                 ),
                 Container(
-                    margin: EdgeInsets.all(10),
+                    margin: const EdgeInsets.all(10),
                     color: Colors.black12,
                     child:
                     TextField(
@@ -116,7 +114,7 @@ class _SearchPage extends State<SearchPage> {
                           ElevatedButton(
                             onPressed:(){
                             appState.searchItem(term, category, _memoController.text);
-                            }, child: Text('검색'),
+                            }, child: const Text('검색'),
                             ),
                           searchedList(context, appState)
                           ],

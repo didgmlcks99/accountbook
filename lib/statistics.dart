@@ -28,12 +28,12 @@ class _StatisticsPage extends State<StatisticsPage>{
 
         child: PieChart(
         dataMap: appState.categories,
-        animationDuration: Duration(seconds: 2),
+        animationDuration: const Duration(seconds: 2),
         chartLegendSpacing: 30,
         chartRadius: MediaQuery.of(context).size.width / 1.2,
         initialAngleInDegree: 0,
         chartType: ChartType.disc,
-        legendOptions: LegendOptions(
+        legendOptions: const LegendOptions(
           showLegendsInRow: false,
           legendPosition: LegendPosition.bottom,
           showLegends: true,
@@ -41,7 +41,7 @@ class _StatisticsPage extends State<StatisticsPage>{
             fontWeight: FontWeight.bold,
           ),
         ),
-        chartValuesOptions: ChartValuesOptions(
+        chartValuesOptions: const ChartValuesOptions(
           showChartValueBackground: true,
           showChartValues: true,
           showChartValuesInPercentage: false,

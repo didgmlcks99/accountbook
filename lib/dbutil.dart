@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'model/budget.dart';
@@ -17,7 +18,6 @@ class ApplicationState extends ChangeNotifier {
   }
 
   Future<void> init() async {
-
     FirebaseAuth.instance
         .userChanges()
         .listen((User? user) async {
@@ -28,10 +28,11 @@ class ApplicationState extends ChangeNotifier {
         _loginState = ApplicationLoginState.loggedIn;
 
         bool userExists = await checkUserExists(_uid!);
-        print("user existence in database > " + userExists.toString() + " : " + uid!);
+        print("user existence in database > " + userExists.toString() + " : " +
+            uid!);
 
-        if(userExists == false) addUser();
-
+        if (userExists == false) addUser();
+        categoryList();
         _itemSubscription = FirebaseFirestore.instance
             .collection('users')
             .doc(uid)
@@ -39,25 +40,25 @@ class ApplicationState extends ChangeNotifier {
             .orderBy('date', descending: false)
             .snapshots()
             .listen((snapshot) {
-              _items = [];
-              for(var document in snapshot.docs){
-                Timestamp stampDB = document.data()['date'];
-                DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+          _items = [];
+          for (var document in snapshot.docs) {
+            Timestamp stampDB = document.data()['date'];
+            DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
 
-                if(isSameDay(dateDB, selectedDay) == true){
-                  _items.add(
-                    Item(
-                      category: document.data()['category'].toString(),
-                      memo: document.data()['memo'].toString(),
-                      itemId: document.id.toString(),
-                      price: document.data()['price'],
-                      inOut: document.data()['inOut'],
-                      date: document.data()['date'],
-                    ),
-                  );
-                }
-              }
-              notifyListeners();
+            if (isSameDay(dateDB, selectedDay) == true) {
+              _items.add(
+                Item(
+                  category: document.data()['category'].toString(),
+                  memo: document.data()['memo'].toString(),
+                  itemId: document.id.toString(),
+                  price: document.data()['price'],
+                  inOut: document.data()['inOut'],
+                  date: document.data()['date'],
+                ),
+              );
+            }
+          }
+          notifyListeners();
         });
 
         _budgetSubscription = FirebaseFirestore.instance
@@ -65,20 +66,21 @@ class ApplicationState extends ChangeNotifier {
             .doc(uid)
             .collection('budgets')
             .snapshots()
-            .listen((snapshot){
-              _budgets = [];
-              for(var document in snapshot.docs){
-                _budgets.add(
-                  Budget(
-                    budget: document.data()['budget'],
-                    category: document.data()['category'].toString(),
-                    used: document.data()['used'],
-                    date: document.data()['date'],
-                  ),
-                );
-              }
-              notifyListeners();
+            .listen((snapshot) {
+          _budgets = [];
+          for (var document in snapshot.docs) {
+            _budgets.add(
+              Budget(
+                budget: document.data()['budget'],
+                category: document.data()['category'].toString(),
+                used: document.data()['used'],
+                date: document.data()['date'],
+              ),
+            );
+          }
+          notifyListeners();
         });
+
 
       } else {
         _items = [];
@@ -87,41 +89,64 @@ class ApplicationState extends ChangeNotifier {
         _budgets = [];
         _budgetSubscription?.cancel();
 
+        _search = [];
+        _searchSubscription?.cancel();
+
         print("user logged out > " + _uid!);
 
         _email = null;
         _photoURL = null;
         _uid = null;
         _loginState = ApplicationLoginState.loggedOut;
-
       }
       notifyListeners();
     });
-
   }
 
   ApplicationLoginState _loginState = ApplicationLoginState.loggedOut;
+
   ApplicationLoginState get loginState => _loginState;
 
   String? _photoURL;
+
   String? get photoURL => _photoURL;
 
   String? _email;
+
   String? get email => _email;
 
   String? _uid;
+
   String? get uid => _uid;
 
+//streamsubscription : stream인데 변경이 생기면 notify하는
   StreamSubscription<QuerySnapshot>? _itemSubscription;
+
+  //calendar에서 선택된 날짜에 해당하는 item list
   List<Item> _items = [];
+
   List<Item> get items => _items;
 
   DateTime _selectedDay = DateTime.now();
+
   DateTime get selectedDay => _selectedDay;
 
   StreamSubscription<QuerySnapshot>? _budgetSubscription;
+
+  //budget list
   List<Budget> _budgets = [];
+
   List<Budget> get budgets => _budgets;
+
+  StreamSubscription<QuerySnapshot>? _searchSubscription;
+  //검색 결과 item list
+  List<Item> _search = [];
+  List<Item> get search => _search;
+
+  //이번달 category list
+  var _categories=Map<String, double>();
+  Map<String, double> get categories => _categories;
+  StreamSubscription<QuerySnapshot>? _categorySubscription;
 
   void startLoginFlow() {
     _loginState = ApplicationLoginState.register;
@@ -133,7 +158,8 @@ class ApplicationState extends ChangeNotifier {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth = await googleUser
+        ?.authentication;
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
@@ -218,11 +244,10 @@ class ApplicationState extends ChangeNotifier {
 
     print("budget added to database > " + catName + " : " + budget.toString());
 
-    if(catName != "total_budget"){
+    if (catName != "total_budget") {
       updateTotalBudget(catName, budget);
       checkForUsed(catName, budget);
     }
-
   }
 
   // 새로운 예산 추가 되었을 때, 총 예산에 정보 반영
@@ -237,9 +262,9 @@ class ApplicationState extends ChangeNotifier {
         .collection('budgets')
         .doc('total_budget')
         .get();
-    
+
     Map<String, dynamic>? totData = totDoc.data();
-    int initialTotal = totData?['budget'] ;
+    int initialTotal = totData?['budget'];
     int changedTotal = initialTotal + budget;
 
     await FirebaseFirestore.instance
@@ -247,7 +272,7 @@ class ApplicationState extends ChangeNotifier {
         .doc(uid)
         .collection('budgets')
         .doc('total_budget')
-        .update({'budget':changedTotal});
+        .update({'budget': changedTotal});
 
     print("update to total_budget with new budget > +" + budget.toString());
   }
@@ -258,7 +283,8 @@ class ApplicationState extends ChangeNotifier {
     }
 
     // Timestamp stampCur = (FieldValue.serverTimestamp() as Timestamp);
-    DateTime currDate = DateTime.now(); //DateTime.parse(stampCur.toDate().toString());
+    DateTime currDate = DateTime
+        .now(); //DateTime.parse(stampCur.toDate().toString());
 
     List<int> prices = [];
 
@@ -268,29 +294,28 @@ class ApplicationState extends ChangeNotifier {
         .collection('items')
         .get()
         .then((QuerySnapshot querySnapshot) {
-          for (var doc in querySnapshot.docs) {
-            Timestamp stampDB = doc['date'];
-            DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+      for (var doc in querySnapshot.docs) {
+        Timestamp stampDB = doc['date'];
+        DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
 
-            String catDB = doc['category'];
+        String catDB = doc['category'];
 
-            bool inOut = doc['inOut'];
+        bool inOut = doc['inOut'];
 
-            if((dateDB.year == currDate.year)
-                && (dateDB.month == currDate.month)
-                && (catDB == catName)
-                && (inOut == true)) {
-              // int outPrice = doc['price'];
-              prices.add(doc['price']);
-              // updateUsedBudget(catDB, outPrice);
-            }
-
-          }
-        });
+        if ((dateDB.year == currDate.year)
+            && (dateDB.month == currDate.month)
+            && (catDB == catName)
+            && (inOut == true)) {
+          // int outPrice = doc['price'];
+          prices.add(doc['price']);
+          // updateUsedBudget(catDB, outPrice);
+        }
+      }
+    });
 
     int outPrice = 0;
 
-    for(int i in prices){
+    for (int i in prices) {
       outPrice += i;
     }
 
@@ -298,7 +323,8 @@ class ApplicationState extends ChangeNotifier {
   }
 
   // 새로 지출/수입 추가 했을 때
-  Future<void> addItem(String category, bool inOut, int price, String memo, Timestamp date) async {
+  Future<void> addItem(String category, bool inOut, int price, String memo,
+      Timestamp date) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
@@ -322,9 +348,9 @@ class ApplicationState extends ChangeNotifier {
 
     DateTime currDate = DateTime.now();
 
-    if((dateDB.year == currDate.year)
+    if ((dateDB.year == currDate.year)
         && (dateDB.month == currDate.month)
-        && (inOut == true)){
+        && (inOut == true)) {
       updateUsedBudget(category, price);
     }
   }
@@ -336,7 +362,7 @@ class ApplicationState extends ChangeNotifier {
 
     bool budgetExists = await checkBudgetExists(category);
 
-    if(budgetExists){
+    if (budgetExists) {
       print("start updating used in budget");
 
       var catDoc = await FirebaseFirestore.instance
@@ -357,7 +383,8 @@ class ApplicationState extends ChangeNotifier {
           .doc(category)
           .update({'used': changedUsed});
 
-      print("updated 'used' to budget category > " + category + " : " + outPrice.toString());
+      print("updated 'used' to budget category > " + category + " : " +
+          outPrice.toString());
 
       var totDoc = await FirebaseFirestore.instance
           .collection('users')
@@ -367,7 +394,7 @@ class ApplicationState extends ChangeNotifier {
           .get();
 
       Map<String, dynamic>? totData = totDoc.data();
-      int initTotUsed = totData?['used'] ;
+      int initTotUsed = totData?['used'];
       int changedTotUsed = initTotUsed + outPrice;
 
       await FirebaseFirestore.instance
@@ -378,7 +405,7 @@ class ApplicationState extends ChangeNotifier {
           .update({'used': changedTotUsed});
 
       print("updated used to tot_budget category > " + outPrice.toString());
-    }else{
+    } else {
       print("the budget doesn't exist for this item's category");
     }
   }
@@ -398,7 +425,8 @@ class ApplicationState extends ChangeNotifier {
   }
 
   // 지출/수입 기록 삭제 하였을 때
-  Future<void> deleteItem(String itemId, String category, int outPrice, bool inOut, Timestamp? date) async {
+  Future<void> deleteItem(String itemId, String category, int outPrice,
+      bool inOut, Timestamp? date) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
@@ -409,7 +437,9 @@ class ApplicationState extends ChangeNotifier {
         .collection('items')
         .doc(itemId)
         .delete()
-        .then((value) => print("item deleted from database > " + category + " : " + outPrice.toString()))
+        .then((value) =>
+        print("item deleted from database > " + category + " : " +
+            outPrice.toString()))
         .catchError((error) => print("failed deletion"));
 
     bool budgetExists = await checkBudgetExists(category);
@@ -419,17 +449,17 @@ class ApplicationState extends ChangeNotifier {
 
     DateTime currDate = DateTime.now();
 
-    if((dateDB.year == currDate.year)
+    if ((dateDB.year == currDate.year)
         && (dateDB.month == currDate.month)
         && (inOut == true)
         && (budgetExists == true)
-    ){
+    ) {
       updateUsedBudget(category, (outPrice * -1));
     }
   }
 
   // 달력에서 선택된 날짜가 바뀌었을 때
-  Future<void> changedDate(DateTime dateTime) async{
+  Future<void> changedDate(DateTime dateTime) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
@@ -449,11 +479,11 @@ class ApplicationState extends ChangeNotifier {
         .snapshots()
         .listen((snapshot) {
       _items = [];
-      for(var document in snapshot.docs){
+      for (var document in snapshot.docs) {
         Timestamp stampDB = document.data()['date'];
         DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
 
-        if(isSameDay(dateDB, selectedDay) == true){
+        if (isSameDay(dateDB, selectedDay) == true) {
           _items.add(
             Item(
               category: document.data()['category'].toString(),
@@ -468,6 +498,236 @@ class ApplicationState extends ChangeNotifier {
       }
       notifyListeners();
     });
-
   }
+
+  Future<void> searchItem(String term, String cat, String mem) async{
+    int condition = searchCondition(term, cat, mem);
+    print('condition $condition');
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+
+    _search= [];
+    _searchSubscription?.cancel();
+    notifyListeners();
+
+    _searchSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('items')
+        .orderBy('date', descending: false)
+        .snapshots().listen((snapshot) {
+      _search = [];
+
+      switch(condition){
+        case 0:
+          for(var document in snapshot.docs){
+            _search.add(
+              Item(
+                category: document.data()['category'].toString(),
+                memo: document.data()['memo'].toString(),
+                itemId: document.id.toString(),
+                price: document.data()['price'],
+                inOut: document.data()['inOut'],
+                date: document.data()['date'],
+              ),
+            );
+          }break;
+        case 1:
+          for(var document in snapshot.docs){
+            if(document.data()['memo'].toString().contains(mem)){
+              _search.add(
+                Item(
+                  category: document.data()['category'].toString(),
+                  memo: document.data()['memo'].toString(),
+                  itemId: document.id.toString(),
+                  price: document.data()['price'],
+                  inOut: document.data()['inOut'],
+                  date: document.data()['date'],
+                ),
+              );
+            }
+          }break;
+        case 2:
+          for(var document in snapshot.docs){
+            if(document.data()['memo'].toString().contains(mem)
+            && document.data()['category'] == cat){
+              _search.add(
+                Item(
+                  category: document.data()['category'].toString(),
+                  memo: document.data()['memo'].toString(),
+                  itemId: document.id.toString(),
+                  price: document.data()['price'],
+                  inOut: document.data()['inOut'],
+                  date: document.data()['date'],
+                ),
+              );
+            }
+          }break;
+        case 3:
+          for(var document in snapshot.docs){
+            if(document.data()['category'] == cat){
+              _search.add(
+                Item(
+                  category: document.data()['category'].toString(),
+                  memo: document.data()['memo'].toString(),
+                  itemId: document.id.toString(),
+                  price: document.data()['price'],
+                  inOut: document.data()['inOut'],
+                  date: document.data()['date'],
+                ),
+              );
+            }
+          }break;
+        case 4:
+          for(var document in snapshot.docs){
+            Timestamp stampDB = document.data()['date'];
+            DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+            if(checkTerm(term, dateDB)){
+              _search.add(
+                Item(
+                  category: document.data()['category'].toString(),
+                  memo: document.data()['memo'].toString(),
+                  itemId: document.id.toString(),
+                  price: document.data()['price'],
+                  inOut: document.data()['inOut'],
+                  date: document.data()['date'],
+                ),);
+            }}break;
+        case 5:
+          for(var document in snapshot.docs){
+            Timestamp stampDB = document.data()['date'];
+            DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+            if(checkTerm(term, dateDB) && document.data()['memo'].toString().contains(mem)){
+              _search.add(
+                Item(
+                  category: document.data()['category'].toString(),
+                  memo: document.data()['memo'].toString(),
+                  itemId: document.id.toString(),
+                  price: document.data()['price'],
+                  inOut: document.data()['inOut'],
+                  date: document.data()['date'],
+                ),);
+            }}break;
+        case 6:
+          for(var document in snapshot.docs){
+            Timestamp stampDB = document.data()['date'];
+            DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+            if(checkTerm(term, dateDB) && document.data()['category'] == cat){
+              _search.add(
+                Item(
+                  category: document.data()['category'].toString(),
+                  memo: document.data()['memo'].toString(),
+                  itemId: document.id.toString(),
+                  price: document.data()['price'],
+                  inOut: document.data()['inOut'],
+                  date: document.data()['date'],
+                ),);
+            }}break;
+        case 7:
+          for(var document in snapshot.docs){
+            Timestamp stampDB = document.data()['date'];
+            DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+            if(checkTerm(term, dateDB) && document.data()['category'] == cat && document.data()['category'] == cat){
+              _search.add(
+                Item(
+                  category: document.data()['category'].toString(),
+                  memo: document.data()['memo'].toString(),
+                  itemId: document.id.toString(),
+                  price: document.data()['price'],
+                  inOut: document.data()['inOut'],
+                  date: document.data()['date'],
+                ),);
+            }}break;
+      }
+      notifyListeners();
+    });
+  }
+
+  int searchCondition(String term, String cat, String mem){
+    int condition;
+    if(term=='전체'){
+      if(cat=='전체'){
+        if(mem==''){
+          condition = 0;
+        }else{
+          condition = 1;
+        }
+      }else{
+        if(mem!=''){
+          condition = 2;
+        }
+        else{
+          condition = 3;
+        }
+      }
+    }else{
+      if(cat=='전체'){
+        if(mem==''){
+          condition = 4;
+        }else{
+          condition = 5;
+        }
+      }else{
+        if(mem==''){
+          condition = 6;
+        }else{
+          condition = 7;
+        }
+      }
+    }
+    return condition;
+  }
+
+  bool checkTerm(String term, DateTime itemDatetime){
+    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+
+    DateTime d = DateTime.now();
+    DateTime firstDayOfWeek = d.subtract(Duration(days: d.weekday - 1));
+    DateTime lastDayOfWeek = d.add(Duration(days: DateTime.daysPerWeek - d.weekday));
+
+    String formattedItemDateTime = formatter.format(itemDatetime);
+    String formattedFirstdayOfWeek = formatter.format(firstDayOfWeek);
+    String formattedLastdayOfWeek = formatter.format(lastDayOfWeek);
+
+    if(term=='이번주'){
+      if(formattedFirstdayOfWeek.compareTo(formattedItemDateTime)<=0
+      &&formattedLastdayOfWeek.compareTo(formattedItemDateTime)>=0)
+        return true;
+    }else if(term=='이번달'){
+      if(itemDatetime.month == DateTime.now().month) return true;
+    }
+    return false;
+  }
+
+  Future<void> categoryList() async{
+    DateTime currDate = DateTime.now();
+    _categorySubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('items')
+        .orderBy('date', descending: false)
+        .snapshots()
+        .listen((snapshot) {
+
+      for (var document in snapshot.docs) {
+        Timestamp stampDB = document.data()['date'];
+        String catName= document.data()['category'].toString();
+        int price= document.data()['price'];
+        DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+
+        if (dateDB.month == currDate.month){
+          if(_categories.containsKey(catName)){
+            double? p = _categories[catName];
+            _categories[catName] = price.toDouble() + p!;
+          }
+          else{
+            _categories[catName] = price.toDouble();
+          }
+        }
+      }
+      notifyListeners();
+    });
+  }
+
 }

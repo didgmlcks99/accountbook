@@ -32,7 +32,7 @@ class ApplicationState extends ChangeNotifier {
             uid!);
 
         if (userExists == false) addUser();
-
+        categoryList();
         _itemSubscription = FirebaseFirestore.instance
             .collection('users')
             .doc(uid)
@@ -139,11 +139,14 @@ class ApplicationState extends ChangeNotifier {
   List<Budget> get budgets => _budgets;
 
   StreamSubscription<QuerySnapshot>? _searchSubscription;
-
   //검색 결과 item list
   List<Item> _search = [];
-
   List<Item> get search => _search;
+
+  //이번달 category list
+  var _categories=Map<String, double>();
+  Map<String, double> get categories => _categories;
+  StreamSubscription<QuerySnapshot>? _categorySubscription;
 
   void startLoginFlow() {
     _loginState = ApplicationLoginState.register;
@@ -636,9 +639,6 @@ class ApplicationState extends ChangeNotifier {
                   date: document.data()['date'],
                 ),);
             }}break;
-
-
-
       }
       notifyListeners();
     });
@@ -698,6 +698,36 @@ class ApplicationState extends ChangeNotifier {
       if(itemDatetime.month == DateTime.now().month) return true;
     }
     return false;
+  }
+
+  Future<void> categoryList() async{
+    DateTime currDate = DateTime.now();
+    _categorySubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('items')
+        .orderBy('date', descending: false)
+        .snapshots()
+        .listen((snapshot) {
+
+      for (var document in snapshot.docs) {
+        Timestamp stampDB = document.data()['date'];
+        String catName= document.data()['category'].toString();
+        int price= document.data()['price'];
+        DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+
+        if (dateDB.month == currDate.month){
+          if(_categories.containsKey(catName)){
+            double? p = _categories[catName];
+            _categories[catName] = price.toDouble() + p!;
+          }
+          else{
+            _categories[catName] = price.toDouble();
+          }
+        }
+      }
+      notifyListeners();
+    });
   }
 
 }

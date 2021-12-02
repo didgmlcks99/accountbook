@@ -46,9 +46,9 @@ class _BudgetPage extends State<BudgetPage> {
             lineHeight: 20.0,
             animationDuration: 2000,
             percent: getBarPercent(doc.used, doc.budget),
-            center: Text(((doc.used / doc.budget)*100).toStringAsFixed(2) + "%"),
+            center: getStringPercent(doc.used, doc.budget),
             linearStrokeCap: LinearStrokeCap.roundAll,
-            progressColor: getBarColor(((doc.used / doc.budget)*100)),
+            progressColor: getBarColor(doc.used, doc.budget),
           ),
         ),
         ListTile(
@@ -194,9 +194,9 @@ class _BudgetPage extends State<BudgetPage> {
                 lineHeight: 20.0,
                 animationDuration: 2000,
                 percent: getBarPercent(mainBudget[0].used, mainBudget[0].budget),
-                center: Text(((mainBudget[0].used / mainBudget[0].budget)*100).toStringAsFixed(2) + "%"),
+                center: getStringPercent(mainBudget[0].used, mainBudget[0].budget),
                 linearStrokeCap: LinearStrokeCap.roundAll,
-                progressColor: getBarColor(((mainBudget[0].used / mainBudget[0].budget)*100)),
+                progressColor: getBarColor(mainBudget[0].used, mainBudget[0].budget),
               ),
             ),
             ListTile(
@@ -222,24 +222,43 @@ class _BudgetPage extends State<BudgetPage> {
   getBarPercent(int used, int budget) {
     if(used > budget){
       return 1.0;
+    }else if(budget == 0){
+      return 0.0;
     }else{
       return used / budget;
     }
   }
 
-  getBarColor(double d) {
-    if(d < 20.0){
+  getBarColor(int used, int budget) {
+    double d;
+
+    if(budget == 0){
       return Colors.greenAccent;
-    }else if(d >= 20 && d < 40){
-      return Colors.lightGreenAccent;
-    }else if(d >= 40 && d < 60){
-      return Colors.limeAccent;
-    }else if(d >= 60 && d < 80){
-      return Colors.deepOrangeAccent;
-    }else if(d >= 80 && d < 90){
-      return Colors.redAccent;
-    }else if(d >= 90){
-      return Colors.red;
+    }else{
+      d = ((used / budget)*100);
+
+      if(d < 20.0){
+        return Colors.greenAccent;
+      }else if(d >= 20 && d < 40){
+        return Colors.lightGreenAccent;
+      }else if(d >= 40 && d < 60){
+        return Colors.limeAccent;
+      }else if(d >= 60 && d < 80){
+        return Colors.deepOrangeAccent;
+      }else if(d >= 80 && d < 90){
+        return Colors.redAccent;
+      }else if(d >= 90){
+        return Colors.red;
+      }
+
+    }
+  }
+
+  getStringPercent(int used, int budget) {
+    if(budget == 0){
+      return const Text("0.00%");
+    }else{
+      return Text(((used / budget)*100).toStringAsFixed(2) + "%");
     }
   }
 

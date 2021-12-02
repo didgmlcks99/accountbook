@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import 'dbutil.dart';
-import 'detail.dart';
+import 'itemdetail.dart';
 import 'model/item.dart';
 
 class SearchPage extends StatefulWidget{
@@ -151,7 +151,7 @@ class _SearchPage extends State<SearchPage> {
                   context,
                   MaterialPageRoute(
                       builder:
-                          (context) => DetailPage(items[index])
+                          (context) => ItemDetailPage(i: items[index])
                   ),
                 );
               }

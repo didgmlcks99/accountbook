@@ -9,7 +9,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 import 'add.dart';
 import 'dbutil.dart';
-import 'detail.dart';
+import 'itemdetail.dart';
 import 'model/item.dart';
 //회원정보
 class DatePage extends StatefulWidget{
@@ -136,7 +136,7 @@ class _DatePage extends State<DatePage> {
                     context,
                     MaterialPageRoute(
                     builder:
-                 (context) => DetailPage(items[index])
+                 (context) => ItemDetailPage(i: items[index])
                  ),
               );
               },

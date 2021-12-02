@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import 'dbutil.dart';
+import 'detail.dart';
 import 'model/item.dart';
 
 class SearchPage extends StatefulWidget{
@@ -145,7 +146,16 @@ class _SearchPage extends State<SearchPage> {
                 color: items[index].inOut == true ? Colors.red : Colors.blue,
               ),
             ),
-          );
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder:
+                          (context) => DetailPage(items[index])
+                  ),
+                );
+              }
+            );
           }, separatorBuilder: (BuildContext context, int index) {
           return const Divider();
         }

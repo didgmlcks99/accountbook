@@ -95,7 +95,7 @@ class ApplicationState extends ChangeNotifier {
   List<Budget> get mainBudget => _mainBudget;
 
   //이번달 category list
-  var _categories=Map<String, double>();
+  Map<String, double>_categories={'식비':0};
   Map<String, double> get categories => _categories;
   StreamSubscription<QuerySnapshot>? _categorySubscription;
 
@@ -684,34 +684,33 @@ class ApplicationState extends ChangeNotifier {
   }
 
   Future<void> categoryList() async{
+    _categories={'식비':0};
     DateTime currDate = DateTime.now();
     _categorySubscription = FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
         .collection('items')
-        .orderBy('date', descending: false)
         .snapshots()
         .listen((snapshot) {
 
       for (var document in snapshot.docs) {
         Timestamp stampDB = document.data()['date'];
         String catName= document.data()['category'].toString();
-        int price= document.data()['price'];
+        double price= document.data()['price'].toDouble();
         DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
 
-        if (dateDB.month == currDate.month){
+        if (dateDB.month == currDate.month && dateDB.year == currDate.year){
           if(_categories.containsKey(catName)){
             double? p = _categories[catName];
-            _categories[catName] = price.toDouble() + p!;
+            price +=p!;
           }
-          else{
-            _categories[catName] = price.toDouble();
-          }
+          _categories[catName] = price;
         }
       }
       notifyListeners();
     });
   }
+
 
   Future<void> budgetList() async {
     _budgetSubscription = FirebaseFirestore.instance

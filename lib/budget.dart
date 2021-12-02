@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
 import 'dbutil.dart';
@@ -37,6 +38,19 @@ class _BudgetPage extends State<BudgetPage> {
             ),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+          child: LinearPercentIndicator(
+            width: MediaQuery.of(context).size.width - 50,
+            animation: true,
+            lineHeight: 20.0,
+            animationDuration: 2000,
+            percent: getBarPercent(doc.used, doc.budget),
+            center: Text(((doc.used / doc.budget)*100).toStringAsFixed(2) + "%"),
+            linearStrokeCap: LinearStrokeCap.roundAll,
+            progressColor: getBarColor(((doc.used / doc.budget)*100)),
+          ),
+        ),
         ListTile(
           title: Text(
             '지출 : ' + priceFormat.format(doc.used),
@@ -44,7 +58,7 @@ class _BudgetPage extends State<BudgetPage> {
               color: Colors.red,
             ),
           ),
-          subtitle: Text(
+          trailing: Text(
             '남은금액 : ' + priceFormat.format(doc.budget - doc.used),
             style: const TextStyle(
               color: Colors.green,
@@ -67,31 +81,6 @@ class _BudgetPage extends State<BudgetPage> {
         ),
       ],
     );
-
-      // child: Column(
-      //     crossAxisAlignment: CrossAxisAlignment.start,
-      //     children: <Widget>[
-      //       Text(
-      //         doc.category + " : " + priceFormat.format(doc.budget),
-      //         style: const TextStyle(
-      //           color: Colors.blue,
-      //         ),
-      //       ),
-      //       Text(
-      //         '지출 : ' + priceFormat.format(doc.used),
-      //         style: const TextStyle(
-      //           color: Colors.red,
-      //         ),
-      //       ),
-      //       Text(
-      //         '남은금액 : ' + priceFormat.format(doc.budget - doc.used),
-      //         style: const TextStyle(
-      //           color: Colors.green,
-      //         ),
-      //       ),
-      //     ],
-      // ),
-    // );
   }
 
   void addBudgetDialog(){
@@ -187,34 +176,6 @@ class _BudgetPage extends State<BudgetPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            /// 둘중에 어떤 디자인이 좋은지 선
-            // Padding(
-            //   padding: const EdgeInsets.all(5),
-            //   child: Text(
-            //     mainBudget[0].category + " : " + priceFormat.format(mainBudget[0].budget),
-            //     style: const TextStyle(
-            //       color: Colors.blue,
-            //     ),
-            //   ),
-            // ),
-            // Padding(
-            //   padding: const EdgeInsets.all(5),
-            //   child: Text(
-            //     '사용 금액 : ' + priceFormat.format(mainBudget[0].used),
-            //     style: const TextStyle(
-            //       color: Colors.red,
-            //     ),
-            //   ),
-            // ),
-            // Padding(
-            //     padding: const EdgeInsets.all(5),
-            //     child: Text(
-            //       '남은 금액 : ' + priceFormat.format(mainBudget[0].budget - mainBudget[0].used),
-            //       style: const TextStyle(
-            //         color: Colors.green,
-            //       ),
-            //     ),
-            // ),
             Padding(
               padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
               child: Text(
@@ -225,6 +186,19 @@ class _BudgetPage extends State<BudgetPage> {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+              child: LinearPercentIndicator(
+                width: MediaQuery.of(context).size.width - 50,
+                animation: true,
+                lineHeight: 20.0,
+                animationDuration: 2000,
+                percent: getBarPercent(mainBudget[0].used, mainBudget[0].budget),
+                center: Text(((mainBudget[0].used / mainBudget[0].budget)*100).toStringAsFixed(2) + "%"),
+                linearStrokeCap: LinearStrokeCap.roundAll,
+                progressColor: getBarColor(((mainBudget[0].used / mainBudget[0].budget)*100)),
+              ),
+            ),
             ListTile(
               title: Text(
                 '사용 금액 : ' + priceFormat.format(mainBudget[0].used),
@@ -232,7 +206,7 @@ class _BudgetPage extends State<BudgetPage> {
                   color: Colors.red,
                 ),
               ),
-              subtitle: Text(
+              trailing: Text(
                 '남은 금액 : ' + priceFormat.format(mainBudget[0].budget - mainBudget[0].used),
                 style: const TextStyle(
                   color: Colors.green,
@@ -244,4 +218,29 @@ class _BudgetPage extends State<BudgetPage> {
       ),
     );
   }
+
+  getBarPercent(int used, int budget) {
+    if(used > budget){
+      return 1.0;
+    }else{
+      return used / budget;
+    }
+  }
+
+  getBarColor(double d) {
+    if(d < 20.0){
+      return Colors.greenAccent;
+    }else if(d >= 20 && d < 40){
+      return Colors.lightGreenAccent;
+    }else if(d >= 40 && d < 60){
+      return Colors.limeAccent;
+    }else if(d >= 60 && d < 80){
+      return Colors.deepOrangeAccent;
+    }else if(d >= 80 && d < 90){
+      return Colors.redAccent;
+    }else if(d >= 90){
+      return Colors.red;
+    }
+  }
+
 }

@@ -24,6 +24,7 @@ class ApplicationState extends ChangeNotifier {
       if (user != null) {
         _email = user.email;
         _photoURL = user.photoURL;
+        _name = user.displayName;
         _uid = user.uid;
         _loginState = ApplicationLoginState.loggedIn;
 
@@ -68,6 +69,9 @@ class ApplicationState extends ChangeNotifier {
 
   String? _email;
   String? get email => _email;
+
+  String? _name;
+  String? get name => _name;
 
   String? _uid;
   String? get uid => _uid;
@@ -717,6 +721,7 @@ class ApplicationState extends ChangeNotifier {
         .collection('users')
         .doc(uid)
         .collection('budgets')
+        .orderBy('budget', descending: false)
         .snapshots()
         .listen((snapshot) {
       _budgets = [];

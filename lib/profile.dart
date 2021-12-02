@@ -38,6 +38,9 @@ class _ProfilePage extends State<ProfilePage> {
                           title: Text(
                             ifEmail(appState.email),
                           ),
+                          subtitle: Text(
+                            ifName(appState.name),
+                          )
                         ),
                         Align(
                           alignment: Alignment.bottomRight,
@@ -50,7 +53,6 @@ class _ProfilePage extends State<ProfilePage> {
                             ),
                             onPressed: () {
                               FirebaseAuth.instance.signOut();
-                              Navigator.pop(context);
                               Navigator.pushNamed(context, '/login');
                             },
                           ),
@@ -91,6 +93,14 @@ class _ProfilePage extends State<ProfilePage> {
       return email;
     }else{
       return "Anonymous";
+    }
+  }
+
+  String ifName(String? name) {
+    if(name != null){
+      return name;
+    }else{
+      return "이름 없음";
     }
   }
 }

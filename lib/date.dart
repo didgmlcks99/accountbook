@@ -25,7 +25,8 @@ class _DatePage extends State<DatePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Consumer<ApplicationState>(
+      builder: (context, appState, _) =>Scaffold(
       appBar: AppBar(
         centerTitle: true,
         leading: IconButton(
@@ -33,6 +34,7 @@ class _DatePage extends State<DatePage> {
             Icons.bar_chart,
           ),
           onPressed: () {
+            appState.categoryList();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -58,8 +60,7 @@ class _DatePage extends State<DatePage> {
           ),
         ],
       ),
-      body: Consumer<ApplicationState>(
-        builder: (context, appState, _) => Center(
+      body:  Center(
           child: Column(
             children: [
               showCalendar(appState),

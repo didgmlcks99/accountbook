@@ -35,7 +35,7 @@ dependencies:
   firebase_core: ^1.10.0
   firebase_auth: ^3.2.0
   cloud_firestore: ^3.1.0
-  provider: ^6.0.1
+  provider: ^5.0.0
   google_sign_in: ^5.1.0
   image_picker: ^0.8.4+1
   path_provider: ^2.0.4
@@ -49,6 +49,11 @@ dependencies:
   table_calendar: ^3.0.3
   pie_chart: ^5.1.0
   percent_indicator: ^3.4.0
+  place_picker: ^0.9.19-nullsafety
+  geolocator: ^7.0.1
+  google_maps_flutter: ^2.0.9
+  google_maps_place_picker: ^2.1.0-nullsafety.3
+
 
 dev_dependencies:
   flutter_test:

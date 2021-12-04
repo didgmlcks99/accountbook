@@ -1,6 +1,10 @@
+import 'package:accountbook/test.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:place_picker/entities/location_result.dart';
+import 'package:place_picker/widgets/place_picker.dart';
+import 'map.dart';
 import 'model/item.dart';
 
 class ItemDetailPage extends StatefulWidget{
@@ -93,25 +97,20 @@ class _ItemDetailPage extends State<ItemDetailPage>{
               ],
             ),
             const SizedBox(height: 30,),
+            TextButton(
+                onPressed: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MyApp()
+                    ),
+                  );
+            },
+                child: Text('위치 추가')),
          ],
         ),
       ),
     );
   }
-
 }
 
-/*
- FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('items').doc(id)
-        .get().then((DocumentSnapshot ds){
-          i= new
-            Item(
-                category: ds["category"],date: ds["date"],memo:ds["memo"],
-                inOut: ds["inOut"], price:ds["price"], itemId: id
-            );
-
-        });
- */

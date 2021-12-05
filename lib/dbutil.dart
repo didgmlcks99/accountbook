@@ -311,7 +311,7 @@ class ApplicationState extends ChangeNotifier {
 
   // 새로 지출/수입 추가 했을 때
   Future<void> addItem(String category, bool inOut, int price, String memo,
-      Timestamp date) async {
+      Timestamp date, String address, GeoPoint geoPoint) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
@@ -326,6 +326,8 @@ class ApplicationState extends ChangeNotifier {
       'inOut': inOut,
       'memo': memo,
       'price': price,
+      'address': address,
+      'geoPoint': geoPoint,
     });
 
     print("item added to database > " + category + " : " + price.toString());
@@ -479,6 +481,8 @@ class ApplicationState extends ChangeNotifier {
               price: document.data()['price'],
               inOut: document.data()['inOut'],
               date: document.data()['date'],
+              address: document.data()['address'].toString(),
+              geoPoint: document.data()['geoPoint'],
             ),
           );
         }
@@ -517,6 +521,8 @@ class ApplicationState extends ChangeNotifier {
                 price: document.data()['price'],
                 inOut: document.data()['inOut'],
                 date: document.data()['date'],
+                address: document.data()['address'].toString(),
+                geoPoint: document.data()['geoPoint'],
               ),
             );
           }break;
@@ -531,6 +537,8 @@ class ApplicationState extends ChangeNotifier {
                   price: document.data()['price'],
                   inOut: document.data()['inOut'],
                   date: document.data()['date'],
+                  address: document.data()['address'].toString(),
+                  geoPoint: document.data()['geoPoint'],
                 ),
               );
             }
@@ -547,6 +555,8 @@ class ApplicationState extends ChangeNotifier {
                   price: document.data()['price'],
                   inOut: document.data()['inOut'],
                   date: document.data()['date'],
+                  address: document.data()['address'].toString(),
+                  geoPoint: document.data()['geoPoint'],
                 ),
               );
             }
@@ -562,6 +572,8 @@ class ApplicationState extends ChangeNotifier {
                   price: document.data()['price'],
                   inOut: document.data()['inOut'],
                   date: document.data()['date'],
+                  address: document.data()['address'].toString(),
+                  geoPoint: document.data()['geoPoint'],
                 ),
               );
             }
@@ -579,6 +591,8 @@ class ApplicationState extends ChangeNotifier {
                   price: document.data()['price'],
                   inOut: document.data()['inOut'],
                   date: document.data()['date'],
+                  address: document.data()['address'].toString(),
+                  geoPoint: document.data()['geoPoint'],
                 ),);
             }}break;
         case 5:
@@ -594,6 +608,8 @@ class ApplicationState extends ChangeNotifier {
                   price: document.data()['price'],
                   inOut: document.data()['inOut'],
                   date: document.data()['date'],
+                  address: document.data()['address'].toString(),
+                  geoPoint: document.data()['geoPoint'],
                 ),);
             }}break;
         case 6:
@@ -609,6 +625,8 @@ class ApplicationState extends ChangeNotifier {
                   price: document.data()['price'],
                   inOut: document.data()['inOut'],
                   date: document.data()['date'],
+                  address: document.data()['address'].toString(),
+                  geoPoint: document.data()['geoPoint'],
                 ),);
             }}break;
         case 7:
@@ -624,6 +642,8 @@ class ApplicationState extends ChangeNotifier {
                   price: document.data()['price'],
                   inOut: document.data()['inOut'],
                   date: document.data()['date'],
+                  address: document.data()['address'].toString(),
+                  geoPoint: document.data()['geoPoint'],
                 ),);
             }}break;
       }
@@ -774,6 +794,8 @@ class ApplicationState extends ChangeNotifier {
               price: document.data()['price'],
               inOut: document.data()['inOut'],
               date: document.data()['date'],
+              address: document.data()['address'].toString(),
+              geoPoint: document.data()['geoPoint'],
             ),
           );
         }

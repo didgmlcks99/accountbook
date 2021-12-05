@@ -47,7 +47,7 @@ import 'model/keys.dart';
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
 
-  static final kInitialPosition = LatLng(-33.8567844, 151.213108);
+  static final kInitialPosition = LatLng(37.532600, 127.024612);
 
   @override
   _MapPageState createState() => _MapPageState();

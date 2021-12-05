@@ -82,12 +82,23 @@ class _ItemDetailPage extends State<ItemDetailPage>{
             ),
             const SizedBox(height: 30,),
             Row(
-              children: const [
-                Text(
+              children: [
+                const Text(
                   '위치',
                   style: TextStyle(
                       fontSize: 20,
                       color: Colors.grey
+                  ),
+                ),
+                Container(
+                  alignment: const Alignment(1,0),
+                  padding: const EdgeInsets.all(20),
+                  width: 310,
+                  child: Text(
+                    widget.i.address,
+                    style: const TextStyle(
+                      fontSize: 20,
+                    ),
                   ),
                 ),
               ],

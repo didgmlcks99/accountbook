@@ -25,6 +25,7 @@ class _SearchPage extends State<SearchPage> {
   String term='전체';
   final _memoController = TextEditingController();
 
+  @override
   void dispose() {
     _memoController.dispose();
     super.dispose();
@@ -40,7 +41,7 @@ class _SearchPage extends State<SearchPage> {
       body: Column(
               children: [
                 Container(
-                  padding: EdgeInsets.fromLTRB(20, 10, 0, 0),
+                  padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
                   alignment: Alignment.centerLeft,
 
                   child: const Text("기간",

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'dbutil.dart';
+import 'map.dart';
 
 final globalScaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -111,6 +112,21 @@ class _AddPage extends State<AddPage>{
                   TextField(
                     decoration: const InputDecoration(labelText: '메모'),
                     controller: _memoController,
+                  ),
+                  ButtonBar(
+                    children: <Widget>[
+                      ElevatedButton(
+                        child: const Text('Map'),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MapPage()
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   // DropdownButton(
                   //     value: payment,

@@ -19,14 +19,16 @@ class SearchPage extends StatefulWidget{
 class _SearchPage extends State<SearchPage> {
 
   Map<int, String> termforSearch = {0: '전체', 1: '이번주', 2: '이번달',};
-  Map<int, String> cateforSearch = {0: '전체', 1: '식비', 2: 'hospital', 3:'기타'};
+  Map<int, String> cateforSearch = {0: '전체', 1: '식비', 2: '교통비', 3:'직접입력'};
 
   String category='전체';
   String term='전체';
+  final _cateController = TextEditingController();
   final _memoController = TextEditingController();
 
   @override
   void dispose() {
+    _cateController.dispose();
     _memoController.dispose();
     super.dispose();
   }
@@ -86,10 +88,11 @@ class _SearchPage extends State<SearchPage> {
                     inactiveBgColor: Colors.white,
                     dividerColor: Colors.grey,
                     //initialLabelIndex: 0,
-                    totalSwitches: 3,
-                    labels: const ['전체', '식비', 'hospital'],
+                    totalSwitches: 4,
+                    labels: const ['전체', '식비', '교통비', '직접입력 '],
                     onToggle: (index) {
-                      category = cateforSearch.values.elementAt(index);
+                      if(index==3) searchCategory();
+                      else category = cateforSearch.values.elementAt(index);
                       print('category : $category');
                     },
                   ),
@@ -116,7 +119,7 @@ class _SearchPage extends State<SearchPage> {
                           ElevatedButton(
                             onPressed:(){
                             appState.searchItem(term, category, _memoController.text);
-                            }, child: const Text('검색'),
+                            }, child: const Text('검색')
                             ),
                           searchedList(context, appState)
                           ],
@@ -161,6 +164,36 @@ class _SearchPage extends State<SearchPage> {
           return const Divider();
         }
       )
+    );
+  }
+
+  void searchCategory(){
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: const Text('카테고리 직접 입력'),
+            content: Container(
+              height: 70,
+              child:
+                TextField(
+                  decoration: const InputDecoration(labelText: '카테고리'),
+                  controller: _cateController,
+                ),
+            ),
+            actions: [
+             TextButton(
+                  child: const Text('완료'),
+                  onPressed: (){
+                    category = _cateController.text;
+                    Navigator.pop(context);
+                  },
+                ),
+
+            ],
+          );
+        }
     );
   }
 }

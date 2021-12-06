@@ -93,18 +93,21 @@ class _BudgetPage extends State<BudgetPage> {
         builder: (BuildContext context){
           return AlertDialog(
            title: const Text('예산 카테고리 추가하기'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                TextField(
-                  decoration: const InputDecoration(labelText: '카테고리'),
-                  controller: _categoryController,
-                ),
-                TextField(
-                  decoration: const InputDecoration(labelText: '예산금액'),
-                  controller: _priceController,
-                ),
-              ],
+            content: Container(
+              height: 130,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(labelText: '카테고리'),
+                    controller: _categoryController,
+                  ),
+                  TextField(
+                    decoration: const InputDecoration(labelText: '예산금액'),
+                    controller: _priceController,
+                  ),
+                ],
+              ),
             ),
             actions: [
               Consumer<ApplicationState>(

@@ -149,8 +149,8 @@ class _DatePage extends State<DatePage> {
     );
   }
 
+  CalendarFormat _calendarFormat = CalendarFormat.month;
   showCalendar(ApplicationState appState) {
-    CalendarFormat _calendarFormat = CalendarFormat.month;
     DateTime _focusedDay = appState.selectedDay;
     DateTime _selectedDay = appState.selectedDay;
 

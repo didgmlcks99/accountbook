@@ -75,7 +75,7 @@ class _DatePage extends State<DatePage> {
                     )
                   ),
                   FloatingActionButton(
-                    child: const Icon(Icons.add),
+                    child: const Icon(Icons.add, color: Colors.white,),
                     onPressed: () {
                       Navigator.push(
                         context,

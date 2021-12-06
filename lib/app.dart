@@ -29,10 +29,25 @@ class _AccountBookAppState extends State<AccountBookApp>{
           return MaterialApp(
             title: 'AccountBookApp',
             theme: ThemeData(
-                brightness: Brightness.light,
-                // appBarTheme: const AppBarTheme(
-                //   color: Colors.lightGreen,
-                // )
+              primaryTextTheme: TextTheme(
+                title: TextStyle(color: Colors.white,
+                    fontWeight: FontWeight.bold),
+
+              ),
+
+              primaryIconTheme: IconThemeData(
+                color: Colors.white,
+              ),
+
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  primary: Color(0XFF139e5d)
+                )
+              ),
+
+              primaryColor:  Color(0xFF88c2a7),
+              accentColor: Color(0XFF36d189)
+
             ),
             home: const HomePage(),
             initialRoute: '/login',

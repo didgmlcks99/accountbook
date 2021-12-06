@@ -28,18 +28,32 @@ class _BudgetPage extends State<BudgetPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget> [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
-          child: Text(
-            doc.category + " : " + priceFormat.format(doc.budget),
-            style: const TextStyle(
-              fontSize: 20,
-              color: Colors.blue,
+        Row(children: [
+          Container(
+            width: 330,
+            padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+            child: Text(
+              doc.category + " : " + priceFormat.format(doc.budget),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Color(0XFF108030),
+              ),
             ),
           ),
-        ),
+          IconButton(
+            onPressed: () {
+              appState.deleteBudget(doc.category, doc.budget, doc.used);
+
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(doc.category + ' deleted')));
+            },
+            icon: Icon(Icons.delete_outlined,
+            color: Colors.grey,),
+          ),
+        ],),
         Padding(
-          padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+          padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
           child: LinearPercentIndicator(
             width: MediaQuery.of(context).size.width - 50,
             animation: true,
@@ -61,25 +75,8 @@ class _BudgetPage extends State<BudgetPage> {
           trailing: Text(
             '남은금액 : ' + priceFormat.format(doc.budget - doc.used),
             style: const TextStyle(
-              color: Colors.green,
+              color: Colors.blue,
             ),
-          ),
-        ),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: TextButton(
-            child: const Text(
-              '삭제',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-            onPressed: () {
-              appState.deleteBudget(doc.category, doc.budget, doc.used);
-
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(doc.category + ' deleted')));
-            },
           ),
         ),
       ],
@@ -178,6 +175,10 @@ class _BudgetPage extends State<BudgetPage> {
     return SizedBox(
       width: double.infinity,
       child: Card(
+          elevation: 10,
+          shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -187,8 +188,9 @@ class _BudgetPage extends State<BudgetPage> {
               child: Text(
                 mainBudget[0].category + " : " + priceFormat.format(mainBudget[0].budget),
                 style: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.blue,
+                  fontSize: 18,
+                  color: Color(0XFF108030),
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -210,12 +212,14 @@ class _BudgetPage extends State<BudgetPage> {
                 '사용 금액 : ' + priceFormat.format(mainBudget[0].used),
                 style: const TextStyle(
                   color: Colors.red,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               trailing: Text(
                 '남은 금액 : ' + priceFormat.format(mainBudget[0].budget - mainBudget[0].used),
                 style: const TextStyle(
-                  color: Colors.green,
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

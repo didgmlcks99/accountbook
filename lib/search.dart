@@ -104,7 +104,6 @@ class _SearchPage extends State<SearchPage> {
                     TextField(
                       decoration: const InputDecoration(
                           labelText: '메모 내용 검색',
-                          focusColor: Colors.black12,
                           prefixIcon: Icon(Icons.search,),
                       ),
                       controller: _memoController,
@@ -119,8 +118,7 @@ class _SearchPage extends State<SearchPage> {
                           ElevatedButton(
                             onPressed:(){
                             appState.searchItem(term, category, _memoController.text);
-                            }, child: const Text('검색')
-                            ),
+                            }, child: const Text('검색'),),
                           searchedList(context, appState)
                           ],
                         )

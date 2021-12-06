@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -104,25 +105,11 @@ class _ItemDetailPage extends State<ItemDetailPage>{
               ],
             ),
             const SizedBox(height: 30,),
+
          ],
         ),
       ),
     );
   }
-
 }
 
-/*
- FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('items').doc(id)
-        .get().then((DocumentSnapshot ds){
-          i= new
-            Item(
-                category: ds["category"],date: ds["date"],memo:ds["memo"],
-                inOut: ds["inOut"], price:ds["price"], itemId: id
-            );
-
-        });
- */

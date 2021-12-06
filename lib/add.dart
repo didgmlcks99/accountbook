@@ -3,7 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:provider/provider.dart';
-
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:avatar_glow/avatar_glow.dart';
 import 'dbutil.dart';
 import 'map.dart';
 import 'model/keys.dart';
@@ -20,7 +21,6 @@ class AddPage extends StatefulWidget{
 }
 
 class _AddPage extends State<AddPage>{
-  _AddPage();
 
   //입금/지출, 금액, 카테고리, 메
   List<bool> isSelected = List.generate(2, (index) => false);
@@ -37,6 +37,14 @@ class _AddPage extends State<AddPage>{
   // final paymentList = ['cash','nonghyup', 'kookmin']; //db에서 리스트 갖고오기..
   // var payment='cash';
 
+  final stt.SpeechToText _speech = stt.SpeechToText();
+
+  bool _isListening = false;
+  String _text = '자동 입력';
+  double _confidence = 1.0; //음성인식 정확도
+
+
+  //Language selectedLang =
   @override
   void dispose(){
     _categoryController.dispose();
@@ -117,10 +125,29 @@ class _AddPage extends State<AddPage>{
                     decoration: const InputDecoration(labelText: '금액'),
                     controller: _priceController,
                   ),
-                  TextField(
-                    decoration: const InputDecoration(labelText: '메모'),
-                    controller: _memoController,
-                  ),
+                  Row(
+                    children: [
+                      Container(
+                        child: TextField(
+                          decoration: const InputDecoration(labelText: '메모'),
+                          controller: _memoController,
+                        ),
+                          width: 300,
+                      ),
+                      AvatarGlow(
+                        animate: _isListening,
+                        glowColor: Theme.of(context).primaryColor,
+                        endRadius: 20,
+                        duration: const Duration(milliseconds: 2000),
+                        repeatPauseDuration: const Duration(milliseconds: 100),
+                        repeat: true,
+                        child: IconButton(
+                          onPressed: _listen,
+                          icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
+                        ),
+                      ),
+                    ],
+                  )
                   const SizedBox(height: 12.0),
                   ElevatedButton(
                     child: const Text("위치 정하기"),
@@ -152,6 +179,7 @@ class _AddPage extends State<AddPage>{
                     },
                   ),
                   selectedPlace == null ? Container() : Text(address ?? ""),
+                  
                   // DropdownButton(
                   //     value: payment,
                   //     items: paymentList.map((value){
@@ -170,5 +198,33 @@ class _AddPage extends State<AddPage>{
           ],
         ),
     );
+  }
+  void _listen() async {
+    if (!_isListening) {
+      bool available = await _speech.initialize(
+        onStatus: (val) => print('onStatus: $val'),
+        onError: (val) => print('onError: $val'),
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          localeId: "ko-KR",
+          onResult: (result) =>
+              setState(() {
+                _text = result.recognizedWords;
+                if (result.hasConfidenceRating && result.confidence > 0) {
+                  _confidence = result.confidence;
+                }
+              }),
+        );
+      }
+    } else {
+      setState(() {
+        _isListening = false;
+        _memoController.text = _text;
+        _text = '';
+      });
+      _speech.stop();
+    }
   }
 }

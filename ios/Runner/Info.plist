@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+  
+  <key>NSMicrophoneUsageDescription</key>
+  <string>This application needs to access your microphone</string>
+  <key>NSSpeechRecognitionUsageDescription</key>
+  <string>This application needs the speech recognition permission</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
+	
 
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>This app needs access to location when open.</string>
@@ -78,5 +86,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>io.flutter.embedded_views_preview</key>
+	<string>YES</string>
 </dict>
 </plist>

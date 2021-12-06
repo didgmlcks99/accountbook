@@ -522,8 +522,10 @@ class ApplicationState extends ChangeNotifier {
             Timestamp stampDB = document.data()['date'];
             DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
 
-            if (document.data()['category'].toString() == category &&
-                isSameDay(dateDB, selectedDay) == true){
+            if ((document.data()['category'].toString() == category) &&
+                (dateDB.year == selectedDay.year) &&
+                (dateDB.month == selectedDay.month)
+            ){
               _budgetDetailItem.add(
                 Item(
                   category: document.data()['category'].toString(),

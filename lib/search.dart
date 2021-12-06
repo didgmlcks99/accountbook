@@ -39,94 +39,95 @@ class _SearchPage extends State<SearchPage> {
         title: const Text('검색'),
       ),
       body: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                  alignment: Alignment.centerLeft,
-
-                  child: const Text("기간",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18
-                      )
-                  ),),
-
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  child: ToggleSwitch(
-                    minWidth: 300,
-                    inactiveBgColor: Colors.white,
-                    dividerColor: Colors.grey,
-                    //initialLabelIndex: 0,
-                    totalSwitches: 3,
-                    labels: const ['전체', '이번주', '이번달'],
-                    onToggle: (index) {
-                      term = termforSearch.values.elementAt(index);
-                      print('term : $term');
-                    },
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+              alignment: Alignment.centerLeft,
+              child: const Text(
+                  "기간",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                  alignment: Alignment.centerLeft,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: ToggleSwitch(
+                minWidth: 300,
+                inactiveBgColor: Colors.white,
+                dividerColor: Colors.grey,
+                //initialLabelIndex: 0,
+                totalSwitches: 3,
+                labels: const ['전체', '이번주', '이번달'],
+                onToggle: (index) {
+                  term = termforSearch.values.elementAt(index);
+                  print('term : $term');
+                },
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+              alignment: Alignment.centerLeft,
 
-                  child: const Text("카테고리",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18
-                      )
-                  ),),
+              child: const Text("카테고리",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18
+                  )
+              ),),
 
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  child: ToggleSwitch(
-                    minWidth: 300,
-                    inactiveBgColor: Colors.white,
-                    dividerColor: Colors.grey,
-                    //initialLabelIndex: 0,
-                    totalSwitches: 3,
-                    labels: const ['전체', '식비', 'hospital'],
-                    onToggle: (index) {
-                      category = cateforSearch.values.elementAt(index);
-                      print('category : $category');
-                    },
-                  ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: ToggleSwitch(
+                minWidth: 300,
+                inactiveBgColor: Colors.white,
+                dividerColor: Colors.grey,
+                //initialLabelIndex: 0,
+                totalSwitches: 3,
+                labels: const ['전체', '식비', 'hospital'],
+                onToggle: (index) {
+                  category = cateforSearch.values.elementAt(index);
+                  print('category : $category');
+                },
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.all(10),
+              color: Colors.black12,
+              child:
+              TextField(
+                decoration: const InputDecoration(
+                  labelText: '메모 내용 검색',
+                  focusColor: Colors.black12,
+                  prefixIcon: Icon(Icons.search,),
                 ),
-                Container(
-                    margin: const EdgeInsets.all(10),
-                    color: Colors.black12,
-                    child:
-                    TextField(
-                      decoration: const InputDecoration(
-                          labelText: '메모 내용 검색',
-                          focusColor: Colors.black12,
-                          prefixIcon: Icon(Icons.search,),
-                      ),
-                      controller: _memoController,
-                    ),
-
-                ),
-                Expanded(
-                  child: Consumer<ApplicationState>(
-                    builder: (context, appState, _) => Center(
-                        child: Column(
-                          children: [
-                          ElevatedButton(
-                            onPressed:(){
+                controller: _memoController,
+              ),
+            ),
+            Expanded(
+              child: Consumer<ApplicationState>(
+                builder: (context, appState, _) => Center(
+                    child: Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed:(){
                             appState.searchItem(term, category, _memoController.text);
                             }, child: const Text('검색'),
-                            ),
-                          searchedList(context, appState)
-                          ],
-                        )
+                        ),
+                        searchedList(context, appState)
+                      ],
                     ),
-          ),
-        ),
-      ]),
+                ),
+              ),
+            ),
+          ],
+      ),
     );
   }
+
   Widget searchedList(BuildContext context, ApplicationState appState){
     var priceFormat = NumberFormat.currency(locale: "ko_KR", symbol: "￦");
 
@@ -135,32 +136,31 @@ class _SearchPage extends State<SearchPage> {
     print('num of item ${items.length}');
     return Expanded(
         child: ListView.separated(
-
-        itemCount: items.length,
-        itemBuilder: (context, index){
-          return ListTile(
-            title: Text(items[index].category),
-            subtitle: Text(items[index].memo),
-            trailing: Text(
-              priceFormat.format(items[index].price),
-              style: TextStyle(
-                color: items[index].inOut == true ? Colors.red : Colors.blue,
-              ),
-            ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder:
-                          (context) => ItemDetailPage(i: items[index])
+            itemCount: items.length,
+            itemBuilder: (context, index){
+              return ListTile(
+                title: Text(items[index].category),
+                subtitle: Text(items[index].memo),
+                trailing: Text(
+                  priceFormat.format(items[index].price),
+                  style: TextStyle(
+                    color: items[index].inOut == true ? Colors.red : Colors.blue,
                   ),
-                );
-              }
-            );
-          }, separatorBuilder: (BuildContext context, int index) {
-          return const Divider();
-        }
-      )
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ItemDetailPage(i: items[index])
+                    ),
+                  );
+                }
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return const Divider();
+            },
+        ),
     );
   }
 }

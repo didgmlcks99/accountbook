@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -24,7 +23,7 @@ class _ItemDetailPage extends State<ItemDetailPage>{
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('detail'),
+        title: const Text('항목 상세 정보'),
       ),
       body: Container(
         padding: const EdgeInsets.all(20),

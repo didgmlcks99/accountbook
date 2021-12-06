@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
+import 'budgetdetail.dart';
 import 'dbutil.dart';
 import 'model/budget.dart';
 
@@ -138,9 +139,7 @@ class _BudgetPage extends State<BudgetPage> {
             ),
           ],
         ),
-        body:
-
-        Consumer<ApplicationState>(
+        body: Consumer<ApplicationState>(
           builder: (context, appState, _) => Center(
             child: Column(
               children: <Widget> [
@@ -161,8 +160,21 @@ class _BudgetPage extends State<BudgetPage> {
           shrinkWrap: false,
           itemCount: budgets.length,
           itemBuilder: (BuildContext context, int index) {
-            return Card(
-                child: _buildTiles(context, budgets[index], appState));
+            return InkWell(
+              child: Card(
+                  child: _buildTiles(context, budgets[index], appState)
+              ),
+              onTap: (){
+                appState.budgetDetail(budgets[index].category);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder:
+                          (context) => BudgetDetailPage(mainBudget: budgets[index],)
+                  ),
+                );
+              },
+            );
           },
         ),
     );

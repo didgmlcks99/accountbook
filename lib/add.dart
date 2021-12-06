@@ -127,12 +127,12 @@ class _AddPage extends State<AddPage>{
                   ),
                   Row(
                     children: [
-                      Container(
+                      SizedBox(
                         child: TextField(
                           decoration: const InputDecoration(labelText: '메모'),
                           controller: _memoController,
                         ),
-                          width: 300,
+                        width: 300,
                       ),
                       AvatarGlow(
                         animate: _isListening,

@@ -353,7 +353,7 @@ packages:
     source: hosted
     version: "1.0.1"
   location:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: location
       url: "https://pub.dartlang.org"

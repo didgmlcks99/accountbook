@@ -29,16 +29,12 @@ class _AddPage extends State<AddPage>{
   // final paymentList = ['cash','nonghyup', 'kookmin']; //db에서 리스트 갖고오기..
   // var payment='cash';
 
-  late stt.SpeechToText _speech;
+  final stt.SpeechToText _speech = stt.SpeechToText();
 
   bool _isListening = false;
   String _text = '자동 입력';
-  double _confidence = 1.0;
-  @override
+  double _confidence = 1.0; //음성인식 정확도
 
-  void initState() {
-    _speech = stt.SpeechToText();
-  }
 
   //Language selectedLang =
   @override
@@ -164,7 +160,6 @@ class _AddPage extends State<AddPage>{
     );
   }
   void _listen() async {
-    var locales = await _speech.locales();
     if (!_isListening) {
       bool available = await _speech.initialize(
         onStatus: (val) => print('onStatus: $val'),
@@ -174,22 +169,22 @@ class _AddPage extends State<AddPage>{
         setState(() => _isListening = true);
         _speech.listen(
           localeId: "ko-KR",
-          onResult: (val) => setState(() {
-            _text = val.recognizedWords;
-            if (val.hasConfidenceRating && val.confidence > 0) {
-              _confidence = val.confidence;
-            }
-          }),
+          onResult: (result) =>
+              setState(() {
+                _text = result.recognizedWords;
+                if (result.hasConfidenceRating && result.confidence > 0) {
+                  _confidence = result.confidence;
+                }
+              }),
         );
       }
     } else {
       setState(() {
         _isListening = false;
-        _memoController.text =_text;
+        _memoController.text = _text;
         _text = '';
       });
       _speech.stop();
     }
   }
-
 }

@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 // Your api key storage.
 // import 'model/keys.dart';
 
+
 class MyApp extends StatelessWidget {
   // Light Theme
   final ThemeData lightTheme = ThemeData.light().copyWith(
@@ -72,7 +73,7 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              RaisedButton(
+              ElevatedButton(
                 child: Text("Load Google Map"),
                 onPressed: () {
                   Navigator.push(

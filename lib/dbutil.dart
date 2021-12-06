@@ -498,10 +498,12 @@ class ApplicationState extends ChangeNotifier {
     });
   }
 
-  Future<void> budgetDetail(String category) async {
+  Future<void> budgetDetail(String category, DateTime dateTime) async {
     if (_loginState != ApplicationLoginState.loggedIn) {
       throw Exception('Must be logged in');
     }
+
+    _selectedDay = dateTime;
 
     _budgetDetailItem = [];
     _budgetDetailItemSubscription?.cancel();
@@ -517,7 +519,11 @@ class ApplicationState extends ChangeNotifier {
           _budgetDetailItem = [];
 
           for (var document in snapshot.docs){
-            if (document.data()['category'].toString() == category){
+            Timestamp stampDB = document.data()['date'];
+            DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+
+            if (document.data()['category'].toString() == category &&
+                isSameDay(dateDB, selectedDay) == true){
               _budgetDetailItem.add(
                 Item(
                   category: document.data()['category'].toString(),

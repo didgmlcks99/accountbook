@@ -165,7 +165,7 @@ class _BudgetPage extends State<BudgetPage> {
                   child: _buildTiles(context, budgets[index], appState)
               ),
               onTap: (){
-                appState.budgetDetail(budgets[index].category);
+                appState.budgetDetail(budgets[index].category, DateTime.now());
                 Navigator.push(
                   context,
                   MaterialPageRoute(

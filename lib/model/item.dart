@@ -8,6 +8,8 @@ class Item{
     required this.price,
     required this.inOut,
     required this.date,
+    required this.address,
+    required this.geoPoint,
   });
 
   final String category;
@@ -16,5 +18,7 @@ class Item{
   final int price;
   final bool inOut;
   final Timestamp? date;
+  final String address;
+  final GeoPoint geoPoint;
 
 }

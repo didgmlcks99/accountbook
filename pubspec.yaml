@@ -49,12 +49,14 @@ dependencies:
   table_calendar: ^3.0.3
   pie_chart: ^5.1.0
   percent_indicator: ^3.4.0
-  place_picker: ^0.9.19-nullsafety
-  geolocator: ^7.0.1
-  google_maps_flutter: ^2.0.9
-  google_maps_place_picker: ^2.1.0-nullsafety.3
   speech_to_text: ^5.2.0
   avatar_glow: ^2.0.2
+  quiver: ^3.0.1+1
+  tuple: ^2.0.0
+  google_maps_webservice: ^0.0.19
+  geolocator: ^7.0.1
+  google_maps_flutter: ^2.1.1
+  google_maps_place_picker: ^2.1.0-nullsafety.3
 
 dev_dependencies:
   flutter_test:

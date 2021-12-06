@@ -76,6 +76,9 @@ class _BudgetPage extends State<BudgetPage> {
             ),
             onPressed: () {
               appState.deleteBudget(doc.category, doc.budget, doc.used);
+
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(doc.category + ' deleted')));
             },
           ),
         ),

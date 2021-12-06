@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:avatar_glow/avatar_glow.dart';
 import 'dbutil.dart';
+import 'map.dart';
+import 'model/keys.dart';
 
 final globalScaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -24,6 +27,11 @@ class _AddPage extends State<AddPage>{
   final _categoryController = TextEditingController();
   final _priceController = TextEditingController();
   final _memoController = TextEditingController();
+
+  PickResult selectedPlace = PickResult();
+
+  GeoPoint? geoPoint;
+  String? address;
 
   //현금/카드 선택
   // final paymentList = ['cash','nonghyup', 'kookmin']; //db에서 리스트 갖고오기..
@@ -47,7 +55,6 @@ class _AddPage extends State<AddPage>{
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: globalScaffoldKey,
         resizeToAvoidBottomInset: false,
@@ -74,6 +81,8 @@ class _AddPage extends State<AddPage>{
                     int.parse(_priceController.text),
                     _memoController.text,
                     widget.date,
+                    address!,
+                    geoPoint!,
                   );
                   Navigator.pop(context);
                 }
@@ -139,7 +148,38 @@ class _AddPage extends State<AddPage>{
                       ),
                     ],
                   )
+                  const SizedBox(height: 12.0),
+                  ElevatedButton(
+                    child: const Text("위치 정하기"),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return PlacePicker(
+                              apiKey: APIKeys.apiKey,
+                              initialPosition: MapPage.kInitialPosition,
+                              useCurrentLocation: true,
+                              selectInitialPosition: true,
 
+                              //usePlaceDetailSearch: true,
+                              onPlacePicked: (result) {
+                                selectedPlace = result;
+
+                                geoPoint = GeoPoint(selectedPlace.geometry!.location.lat, selectedPlace.geometry!.location.lng);
+                                address = selectedPlace.formattedAddress;
+
+                                Navigator.of(context).pop();
+                                setState(() {});
+                              },
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  selectedPlace == null ? Container() : Text(address ?? ""),
+                  
                   // DropdownButton(
                   //     value: payment,
                   //     items: paymentList.map((value){
@@ -156,7 +196,7 @@ class _AddPage extends State<AddPage>{
               ),
             )
           ],
-        )
+        ),
     );
   }
   void _listen() async {

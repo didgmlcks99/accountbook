@@ -147,7 +147,7 @@ class _AddPage extends State<AddPage>{
                         ),
                       ),
                     ],
-                  )
+                  ),
                   const SizedBox(height: 12.0),
                   ElevatedButton(
                     child: const Text("위치 정하기"),

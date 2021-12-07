@@ -49,8 +49,9 @@ class _BudgetPage extends State<BudgetPage> {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(doc.category + ' deleted')));
             },
-            icon: Icon(Icons.delete_outlined,
-            color: Colors.grey,),
+            icon: const Icon(Icons.delete_outlined,
+            color: Colors.grey,
+            ),
           ),
         ],),
         Padding(
@@ -91,7 +92,7 @@ class _BudgetPage extends State<BudgetPage> {
         builder: (BuildContext context){
           return AlertDialog(
            title: const Text('예산 카테고리 추가하기'),
-            content: Container(
+            content: SizedBox(
               height: 130,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,

@@ -29,24 +29,24 @@ class _AccountBookAppState extends State<AccountBookApp>{
           return MaterialApp(
             title: 'AccountBookApp',
             theme: ThemeData(
-              primaryTextTheme: TextTheme(
-                title: TextStyle(color: Colors.white,
+              primaryTextTheme: const TextTheme(
+                subtitle1: TextStyle(color: Colors.white,
                     fontWeight: FontWeight.bold),
 
               ),
 
-              primaryIconTheme: IconThemeData(
+              primaryIconTheme: const IconThemeData(
                 color: Colors.white,
               ),
 
               elevatedButtonTheme: ElevatedButtonThemeData(
                 style: ElevatedButton.styleFrom(
-                  primary: Color(0XFF139e5d)
+                  primary: const Color(0XFF139e5d)
                 )
               ),
 
-              primaryColor:  Color(0xFF88c2a7),
-              accentColor: Color(0XFF36d189)
+              primaryColor:  const Color(0xFF88c2a7),
+              accentColor: const Color(0XFF36d189)
 
             ),
             home: const HomePage(),

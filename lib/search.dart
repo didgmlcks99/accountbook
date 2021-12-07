@@ -91,8 +91,11 @@ class _SearchPage extends State<SearchPage> {
                     totalSwitches: 4,
                     labels: const ['전체', '식비', '교통비', '직접입력 '],
                     onToggle: (index) {
-                      if(index==3) searchCategory();
-                      else category = cateforSearch.values.elementAt(index);
+                      if(index==3) {
+                        searchCategory();
+                      } else {
+                        category = cateforSearch.values.elementAt(index);
+                      }
                       print('category : $category');
                     },
                   ),
@@ -172,7 +175,7 @@ class _SearchPage extends State<SearchPage> {
         builder: (BuildContext context){
           return AlertDialog(
             title: const Text('카테고리 직접 입력'),
-            content: Container(
+            content: SizedBox(
               height: 70,
               child:
                 TextField(

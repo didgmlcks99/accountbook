@@ -32,10 +32,10 @@ class Authentication extends StatelessWidget {
     return Column(
       children: <Widget>[
         ElevatedButton(
-          child: const Text('Google'),
+          child: const Text('Google Login'),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),
-            primary : Colors.red,
+            primary: Color(0XFF22a15a)
           ),
           onPressed: () async {
             startLoginFlow();
@@ -45,7 +45,7 @@ class Authentication extends StatelessWidget {
         ElevatedButton(
           child: const Text('logout'),
           style: ElevatedButton.styleFrom(
-            primary : Colors.pink,
+            primary : Color(0xFFabdbb8),
           ),
           onPressed: () async {
             signOut();

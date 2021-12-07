@@ -117,10 +117,9 @@ class _DatePage extends State<DatePage> {
                 );
                 items.removeAt(index);
               });
-
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text('$tile deleted')));
-            },
+              },
             background: Container(color: Colors.red),
             child: ListTile(
               title: Text(items[index].category),
@@ -133,24 +132,25 @@ class _DatePage extends State<DatePage> {
               ),
               onTap: (){
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                    builder:
-                 (context) => ItemDetailPage(i: items[index])
-                 ),
-              );
+                  context,
+                  MaterialPageRoute(
+                      builder:
+                          (context) => ItemDetailPage(i: items[index])
+                  ),
+                );
               },
             ),
           );
-        }, separatorBuilder: (BuildContext context, int index) {
-        return const Divider();
-      },
+        },
+        separatorBuilder: (BuildContext context, int index) {
+          return const Divider();
+        },
       ),
     );
   }
 
+  CalendarFormat _calendarFormat = CalendarFormat.month;
   showCalendar(ApplicationState appState) {
-    CalendarFormat _calendarFormat = CalendarFormat.month;
     DateTime _focusedDay = appState.selectedDay;
     DateTime _selectedDay = appState.selectedDay;
 

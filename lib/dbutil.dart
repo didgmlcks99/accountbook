@@ -50,6 +50,9 @@ class ApplicationState extends ChangeNotifier {
         _search = [];
         _searchSubscription?.cancel();
 
+        _budgetDetailItem = [];
+        _budgetDetailItemSubscription?.cancel();
+
         print("user logged out > ");
 
         _email = null;
@@ -90,6 +93,10 @@ class ApplicationState extends ChangeNotifier {
   List<Budget> _budgets = [];
   List<Budget> get budgets => _budgets;
   StreamSubscription<QuerySnapshot>? _searchSubscription;
+
+  List<Item> _budgetDetailItem = [];
+  List<Item> get budgetDetailItem => _budgetDetailItem;
+  StreamSubscription<QuerySnapshot>? _budgetDetailItemSubscription;
 
   //검색 결과 item list
   List<Item> _search = [];
@@ -489,6 +496,52 @@ class ApplicationState extends ChangeNotifier {
       }
       notifyListeners();
     });
+  }
+
+  Future<void> budgetDetail(String category, DateTime dateTime) async {
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+
+    _selectedDay = dateTime;
+
+    _budgetDetailItem = [];
+    _budgetDetailItemSubscription?.cancel();
+    notifyListeners();
+
+    _budgetDetailItemSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('items')
+        .orderBy('date', descending: false)
+        .snapshots()
+        .listen((snapshot){
+          _budgetDetailItem = [];
+
+          for (var document in snapshot.docs){
+            Timestamp stampDB = document.data()['date'];
+            DateTime dateDB = DateTime.parse(stampDB.toDate().toString());
+
+            if ((document.data()['category'].toString() == category) &&
+                (dateDB.year == selectedDay.year) &&
+                (dateDB.month == selectedDay.month)
+            ){
+              _budgetDetailItem.add(
+                Item(
+                  category: document.data()['category'].toString(),
+                  memo: document.data()['memo'].toString(),
+                  itemId: document.id.toString(),
+                  price: document.data()['price'],
+                  inOut: document.data()['inOut'],
+                  date: document.data()['date'],
+                  address: document.data()['address'].toString(),
+                  geoPoint: document.data()['geoPoint'],
+                ),
+              );
+            }
+          }
+          notifyListeners();
+        });
   }
 
   Future<void> searchItem(String term, String cat, String mem) async{

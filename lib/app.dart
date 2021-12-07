@@ -45,6 +45,10 @@ class _AccountBookAppState extends State<AccountBookApp>{
                 )
               ),
 
+              appBarTheme: AppBarTheme(
+                color: const Color(0xFF88c2a7),
+              ),
+
               primaryColor:  const Color(0xFF88c2a7),
               accentColor: const Color(0XFF36d189)
 

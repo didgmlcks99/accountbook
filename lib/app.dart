@@ -45,12 +45,12 @@ class _AccountBookAppState extends State<AccountBookApp>{
                 )
               ),
 
-              appBarTheme: AppBarTheme(
-                color: const Color(0xFF88c2a7),
+              appBarTheme: const AppBarTheme(
+                color: Color(0xFF88c2a7),
               ),
 
               primaryColor:  const Color(0xFF88c2a7),
-              accentColor: const Color(0XFF36d189)
+              colorScheme: ColorScheme.fromSwatch().copyWith(secondary: const Color(0XFF36d189)),
 
             ),
             home: const HomePage(),

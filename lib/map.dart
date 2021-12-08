@@ -130,6 +130,7 @@ class _MapPageState extends State<MapPage> {
               selectedPlace == null ? Container() : Text(selectedPlace.formattedAddress ?? ""),
             ],
           ),
-        ));
+        )
+    );
   }
 }

@@ -8,7 +8,6 @@ class AccountPage extends StatefulWidget{
   _AccountPage createState() => _AccountPage();
 }
 
-
 class _AccountPage extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {

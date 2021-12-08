@@ -119,7 +119,6 @@ class _BudgetDetailPage extends State<BudgetDetailPage>{
       }else if(d >= 90){
         return Colors.red;
       }
-
     }
   }
 

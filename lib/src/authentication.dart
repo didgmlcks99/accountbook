@@ -42,15 +42,15 @@ class Authentication extends StatelessWidget {
             signInWithGoogle(context);
           },
         ),
-        ElevatedButton(
-          child: const Text('logout'),
-          style: ElevatedButton.styleFrom(
-            primary : Color(0xFFabdbb8),
-          ),
-          onPressed: () async {
-            signOut();
-          },
-        ),
+        // ElevatedButton(
+        //   child: const Text('logout'),
+        //   style: ElevatedButton.styleFrom(
+        //     primary : Color(0xFFabdbb8),
+        //   ),
+        //   onPressed: () async {
+        //     signOut();
+        //   },
+        // ),
       ],
     );
   }

@@ -42,21 +42,26 @@ class _ProfilePage extends State<ProfilePage> {
                             ifName(appState.name),
                           )
                         ),
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: TextButton(
-                            child: const Text(
-                              '로그아웃',
-                              style: TextStyle(
-                                fontSize: 20,
+                        Row(
+                            children: [
+                              SizedBox(width: 290,),
+                              TextButton(
+                                child: const Text(
+                                  '로그아웃',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                      color: Colors.grey
+
+                                  ),
+                                ),
+                                onPressed: () {
+                                  FirebaseAuth.instance.signOut();
+                                  Navigator.pushNamed(context, '/login');
+                                },
                               ),
-                            ),
-                            onPressed: () {
-                              FirebaseAuth.instance.signOut();
-                              Navigator.pushNamed(context, '/login');
-                            },
-                          ),
-                        ),
+                              Icon(Icons.logout, color: const Color(0XFF139e5d))
+                            ],
+                          )
                       ],
                     ),
                   ),

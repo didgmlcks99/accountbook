@@ -104,7 +104,6 @@ class _ItemDetailPage extends State<ItemDetailPage>{
               ],
             ),
             const SizedBox(height: 30,),
-
          ],
         ),
       ),

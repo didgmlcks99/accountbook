@@ -44,18 +44,15 @@ class _AccountBookAppState extends State<AccountBookApp>{
                   primary: const Color(0XFF139e5d)
                 )
               ),
-
-                appBarTheme: AppBarTheme(
-                    color: const Color(0xFF88c2a7),
-                    titleTextStyle: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold
-                    )
-                ),
-
+              appBarTheme: AppBarTheme(
+                color: const Color(0xFF88c2a7),
+                titleTextStyle: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold
+                )
+              ),
               primaryColor:  const Color(0xFF88c2a7),
-              accentColor: const Color(0XFF36d189)
-
+              colorScheme: ColorScheme.fromSwatch().copyWith(secondary: const Color(0XFF36d189)),
             ),
             home: const HomePage(),
             initialRoute: '/login',

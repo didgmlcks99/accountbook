@@ -199,7 +199,7 @@ class _BudgetPage extends State<BudgetPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
               child: Text(
-                mainBudget[0].category + " : " + priceFormat.format(mainBudget[0].budget),
+                "총 예산 : " + priceFormat.format(mainBudget[0].budget),
                 style: const TextStyle(
                   fontSize: 18,
                   color: Color(0XFF108030),
@@ -222,7 +222,7 @@ class _BudgetPage extends State<BudgetPage> {
             ),
             ListTile(
               title: Text(
-                '사용 금액 : ' + priceFormat.format(mainBudget[0].used),
+                '총 지출 : ' + priceFormat.format(mainBudget[0].used),
                 style: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.bold,

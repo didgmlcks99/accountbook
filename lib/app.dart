@@ -30,7 +30,7 @@ class _AccountBookAppState extends State<AccountBookApp>{
             title: 'AccountBookApp',
             theme: ThemeData(
               primaryTextTheme: const TextTheme(
-                title: TextStyle(color: Colors.white,
+                subtitle1: TextStyle(color: Colors.white,
                     fontWeight: FontWeight.bold),
               ),
 
@@ -44,8 +44,8 @@ class _AccountBookAppState extends State<AccountBookApp>{
                   primary: const Color(0XFF139e5d)
                 )
               ),
-              appBarTheme: AppBarTheme(
-                color: const Color(0xFF88c2a7),
+              appBarTheme: const AppBarTheme(
+                color: Color(0xFF88c2a7),
                 titleTextStyle: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold
